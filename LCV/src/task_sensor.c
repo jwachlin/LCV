@@ -29,14 +29,47 @@ SOFTWARE.*/
 
 #include "task_monitor.h"
 
+#include "lib/flow_sensor_sfm3300.h"
+
 #include "task_sensor.h"
+
+#define FLOW_METER_SERCOM			SERCOM3
 
 // Task handle
 static TaskHandle_t sensor_task_handle = NULL;
 
+static struct i2c_master_module i2c_master_instance;
+
+
+/*
+*	\brief Sets up sensor interface hardware
+*
+*	Sets up SERCOM i2c to flow meter
+*	Sets up ADC for communication with pressure sensors
+*/
+static void sensor_hw_init(void)
+{
+	struct i2c_master_config config_i2c_master;
+	i2c_master_get_config_defaults(&config_i2c_master);
+	config_i2c_master.baud_rate = I2C_MASTER_BAUD_RATE_100KHZ;
+	config_i2c_master.buffer_timeout = 65535; 
+	config_i2c_master.pinmux_pad0 = PIN_PA22C_SERCOM3_PAD0;
+	config_i2c_master.pinmux_pad1 = PIN_PA23C_SERCOM3_PAD1;
+	
+	/* Initialize and enable device with config */
+	while(i2c_master_init(&i2c_master_instance, FLOW_METER_SERCOM, &config_i2c_master) != STATUS_OK);
+	i2c_master_enable(&i2c_master_instance);
+
+	flow_sensor_power_on();
+	flow_sensor_init(&i2c_master_instance);
+}
+
 static void sensor_task(void * pvParameters)
 {
 	UNUSED(pvParameters);
+
+	vTaskDelay(pdMS_TO_TICKS(10));
+	flow_sensor_request_flow_slm(&i2c_master_instance); // first read is invalid
 	
 	for (;;)
 	{
@@ -53,6 +86,8 @@ static void sensor_task(void * pvParameters)
 
 void create_sensor_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_priority)
 {
+	sensor_hw_init();
+	
 	xTaskCreate(sensor_task, (const char * const) "SENSOR",
 		stack_depth_words, NULL, task_priority, &sensor_task_handle);
 }
