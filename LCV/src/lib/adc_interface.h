@@ -21,16 +21,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
 /**
- * \file task_sensor.h
+ * \file adc_interface.h
  *
- * \brief Sensor interfacing task
+ * \brief Analog to digital converter shared interface
  *
  */
 
+#ifndef ADC_INTERFACE_H_
+#define ADC_INTERFACE_H_
 
-#ifndef TASK_SENSOR_H_
-#define TASK_SENSOR_H_
+#define NUM_PRESSURE_SENSOR_CHANNELS		3
+#define PRESSURE_SENSOR_VOLTAGE         (3.3)
+#define PRESSURE_SENSOR_FSR_PSI         (1.0)
 
+void adc_interface_init(void);
+float get_pressure_sensor_cmH2O(uint8_t channel);
+float get_input_potentiometer_portion(void);
+float get_motor_temp_celsius(void);
 
-
-#endif /* TASK_SENSOR_H_ */
+#endif /* ADC_INTERFACE_H_ */

@@ -38,6 +38,15 @@ static struct i2c_master_packet slm_read_packet;
 static struct i2c_master_packet slm_write_packet;
 static volatile uint8_t read_slm_buffer[3];
 
+/*
+*	\brief Calculates the cyclical redundancy check on data from the SFM3300 flow sensor
+*
+*	\param data Pointer to the data to calculate CRC on
+*	\param num_bytes The number of bytes to calculate CRC on
+*	\param checksum The believed checksum
+*
+*	\param True if param checksum equals calculated CRC, false otherwise
+*/
 static bool flow_sensor_crc(uint8_t * data, uint8_t num_bytes, uint8_t checksum)
 {
 	 uint8_t crc = 0;
@@ -54,8 +63,14 @@ static bool flow_sensor_crc(uint8_t * data, uint8_t num_bytes, uint8_t checksum)
 	 else return true;
 }
 
+/*
+*	\brief Callback to handle the measurements from the flow sensor
+*
+*	\param module Pointer to I2C master module
+*/
 static void flow_sensor_slm_callback(struct i2c_master_module *const module)
 {
+	// WARNING: ISR context
 	uint8_t read_crc = read_slm_buffer[2];
 	if(!flow_sensor_crc(read_slm_buffer, 2, read_crc))
 	{
@@ -67,6 +82,11 @@ static void flow_sensor_slm_callback(struct i2c_master_module *const module)
 	// TODO do something with it
 }
 
+/*
+*	\brief Sets up callback handler for flow sensor measurements
+*
+*	\param i2c_mod Pointer to I2C master module
+*/
 void flow_sensor_init(struct i2c_master_module * i2c_mod)
 {
 	// Set up I2C callback
@@ -75,16 +95,27 @@ void flow_sensor_init(struct i2c_master_module * i2c_mod)
 	// TODO set priority to be FreeRTOS compatible?
 }
 
+/*
+*	\brief Powers on the flow sensor
+*/
 void flow_sensor_power_on(void)
 {
 	ioport_set_pin_level(FLOW_SENSOR_POWER_GPIO, FLOW_SENSOR_POWER_ACTIVE_LEVEL);
 }
 
+/*
+*	\brief Powers off the flow sensor
+*/
 void flow_sensor_power_off(void)
 {
 	ioport_set_pin_level(FLOW_SENSOR_POWER_GPIO, !FLOW_SENSOR_POWER_ACTIVE_LEVEL);
 }
 
+/*
+*	\brief Requests a measurement from the flow sensor and triggers another measurement
+*
+*	\param i2c_mod Pointer to I2C master module
+*/
 void flow_sensor_request_flow_slm(struct i2c_master_module * i2c_mod)
 {
 	// Note: Delay is inherent between these, so must not call faster than 500Hz

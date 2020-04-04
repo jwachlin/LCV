@@ -751,10 +751,28 @@
     <Compile Include="src\ASF\thirdparty\freertos\freertos-10.0.0\Source\portable\MemMang\heap_4.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\lib\adc_interface.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\lib\adc_interface.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\lib\alarm_monitoring.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\lib\alarm_monitoring.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\lib\flow_sensor_sfm3300.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\lib\flow_sensor_sfm3300.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\lib\lcd_interface.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\lib\lcd_interface.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\task_control.c">

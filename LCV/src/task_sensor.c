@@ -30,6 +30,7 @@ SOFTWARE.*/
 #include "task_monitor.h"
 
 #include "lib/flow_sensor_sfm3300.h"
+#include "lib/adc_interface.h"
 
 #include "task_sensor.h"
 
@@ -62,8 +63,13 @@ static void sensor_hw_init(void)
 
 	flow_sensor_power_on();
 	flow_sensor_init(&i2c_master_instance);
+
+	adc_interface_init();
 }
 
+/*
+*	\brief The sensor task
+*/
 static void sensor_task(void * pvParameters)
 {
 	UNUSED(pvParameters);
@@ -83,7 +89,6 @@ static void sensor_task(void * pvParameters)
 *	\param stack_depth_words The depth of the stack in words
 *	\param task_priority The task priority
 */
-
 void create_sensor_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_priority)
 {
 	sensor_hw_init();

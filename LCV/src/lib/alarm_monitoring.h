@@ -21,16 +21,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
 /**
- * \file task_sensor.h
+ * \file alarm_monitoring.h
  *
- * \brief Sensor interfacing task
+ * \brief Alarm status handling interface
  *
  */
 
+#ifndef ALARM_MONITORING_H_
+#define ALARM_MONITORING_H_
 
-#ifndef TASK_SENSOR_H_
-#define TASK_SENSOR_H_
+/*
+*	\brief Enumeration of possible alarms
+*/
+typedef enum
+{
+	ALARM_FLOW_SENSOR = 0,
+	ALARM_LCD = 1,
+	ALARM_PRESSURE_SENSOR = 2,
+	ALARM_MOTOR_ERROR = 3,
+	ALARM_MOTOR_TEMP = 4,
+	ALARM_SETTINGS_LOAD = 5
+} ALARM_TYPE_INDEX;
 
+void set_alarm(ALARM_TYPE_INDEX alarm_type, bool set);
+bool check_alarm(ALARM_TYPE_INDEX alarm_type);
+uint32_t get_alarm_bitfield(void);
+bool any_alarms_set(void);
 
-
-#endif /* TASK_SENSOR_H_ */
+#endif /* ALARM_MONITORING_H_ */
