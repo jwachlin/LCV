@@ -31,6 +31,16 @@ SOFTWARE.*/
 #include <asf.h>
 #include "task_monitor.h"
 
+static void configure_wdt(void)
+{
+	struct wdt_conf config_wdt;
+	wdt_get_config_defaults(&config_wdt);
+	config_wdt.always_on = true; // Cannot be turned off
+	config_wdt.clock_source = GCLK_GENERATOR_4; // 8MHz / 255 = 32.372 kHz
+	config_wdt.timeout_period = WDT_PERIOD_16384CLK; // Approx 0.5 seconds
+	wdt_set_config(&config_wdt);
+}
+
 int main (void)
 {
 	system_init();
@@ -41,6 +51,9 @@ int main (void)
 	create_control_task(taskCONTROL_TASK_STACK_SIZE, taskCONTROL_TASK_PRIORITY);
 	create_sensor_task(taskSENSOR_TASK_STACK_SIZE, taskSENSOR_TASK_PRIORITY);
 	create_hmi_task(taskHMI_TASK_STACK_SIZE, taskHMI_TASK_PRIORITY);
+	
+	// Enable WDT
+	configure_wdt();
 
 	vTaskStartScheduler();
 	
@@ -65,6 +78,15 @@ void vApplicationMallocFailedHook(void)
 	}
 }
 
+void vApplicationIdleHook(void);
+
+void vApplicationIdleHook(void)
+{
+	/* Only called if configUSE_IDLE_HOOK is not set to 0 in FreeRTOSConfig.h */
+	// There must be time spent in idle tick, or system will reset
+	wdt_reset_count();
+}
+
 void vApplicationTickHook(void);
 
 void vApplicationTickHook(void)
@@ -79,6 +101,14 @@ void vApplicationStackOverflowHook(void)
 {
 	/* Only called if configCHECK_FOR_STACK_OVERFLOW is not set to 0 in FreeRTOSConfig.h */
 	taskDISABLE_INTERRUPTS();
+	for (;;)
+	{
+	}
+}
+
+ISR(HardFault_Handler)
+{
+	// Yikes, something really bad happened
 	for (;;)
 	{
 	}
