@@ -21,62 +21,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
 /**
- * \file main.c
+ * \file task_monitor.c
  *
- * \brief Firmware for low-cost ventilator
+ * \brief Monitoring task
  *
  */
 
-
-#include <asf.h>
 #include "task_monitor.h"
 
-int main (void)
-{
-	system_init();
-	delay_init();
-	
-	// Set up application tasks.
-	create_monitor_task(taskMONITOR_TASK_STACK_SIZE, taskMONITOR_TASK_PRIORITY);
+// Task handle
+static TaskHandle_t monitor_task_handle = NULL;
 
-	vTaskStartScheduler();
+static void monitor_task(void * pvParameters)
+{
+	UNUSED(pvParameters);
 	
-	// Should never get here, FreeRTOS tasks should have begun
 	for (;;)
 	{
-	}
-	
-	return 0;
-}
-
-/******* FreeRTOS User-Defined Hooks *******/
-
-void vApplicationMallocFailedHook(void);
-
-void vApplicationMallocFailedHook(void)
-{
-	/* Only called if configUSE_MALLOC_FAILED_HOOK is set to 1 in FreeRTOSConfig.h */
-	taskDISABLE_INTERRUPTS();
-	for (;;)
-	{
+		vTaskDelay(pdMS_TO_TICKS(1000)); // TODO do something here
 	}
 }
 
-void vApplicationTickHook(void);
-
-void vApplicationTickHook(void)
+/*
+*	\brief Creates the monitor task
+*
+*	\param stack_depth_words The depth of the stack in words
+*	\param task_priority The task priority
+*/
+void create_monitor_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_priority)
 {
-	/* This function will be called by each tick interrupt if
-	configUSE_TICK_HOOK is set to 1 in FreeRTOSConfig.h */
-}
-
-void vApplicationStackOverflowHook(void);
-
-void vApplicationStackOverflowHook(void)
-{
-	/* Only called if configCHECK_FOR_STACK_OVERFLOW is not set to 0 in FreeRTOSConfig.h */
-	taskDISABLE_INTERRUPTS();
-	for (;;)
-	{
-	}
+	xTaskCreate(monitor_task, (const char * const) "MONITOR",
+		stack_depth_words, NULL, task_priority, &monitor_task_handle);
 }

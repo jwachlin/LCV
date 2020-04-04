@@ -21,62 +21,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
 /**
- * \file main.c
+ * \file task_monitor.h
  *
- * \brief Firmware for low-cost ventilator
+ * \brief Monitoring task
  *
  */
 
+#ifndef TASK_MONITOR_H_
+#define TASK_MONITOR_H_
 
-#include <asf.h>
-#include "task_monitor.h"
+#include "FreeRTOS.h"
 
-int main (void)
-{
-	system_init();
-	delay_init();
-	
-	// Set up application tasks.
-	create_monitor_task(taskMONITOR_TASK_STACK_SIZE, taskMONITOR_TASK_PRIORITY);
+#include "asf.h"
 
-	vTaskStartScheduler();
-	
-	// Should never get here, FreeRTOS tasks should have begun
-	for (;;)
-	{
-	}
-	
-	return 0;
-}
+// Task priorities
+#define taskMONITOR_TASK_PRIORITY		(tskIDLE_PRIORITY+3)
+#define taskCONTROL_TASK_PRIORITY		(tskIDLE_PRIORITY+2)
+#define taskSENSOR_TASK_PRIORITY		(tskIDLE_PRIORITY+2)
+#define taskHMI_TASK_PRIORITY			(tskIDLE_PRIORITY+1)
 
-/******* FreeRTOS User-Defined Hooks *******/
+// Task size allocation in words. Note 1 word = 4 bytes
+#define taskMONITOR_TASK_STACK_SIZE		(256)
+#define taskCONTROL_TASK_STACK_SIZE		(512)
+#define taskSENSOR_TASK_STACK_SIZE		(512)
+#define taskHMI_TASK_STACK_SIZE			(512)
 
-void vApplicationMallocFailedHook(void);
+void create_monitor_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_priority);
+//void create_control_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_priority);
+//void create_sensor_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_priority);
+//void create_hmi_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_priority);
 
-void vApplicationMallocFailedHook(void)
-{
-	/* Only called if configUSE_MALLOC_FAILED_HOOK is set to 1 in FreeRTOSConfig.h */
-	taskDISABLE_INTERRUPTS();
-	for (;;)
-	{
-	}
-}
 
-void vApplicationTickHook(void);
-
-void vApplicationTickHook(void)
-{
-	/* This function will be called by each tick interrupt if
-	configUSE_TICK_HOOK is set to 1 in FreeRTOSConfig.h */
-}
-
-void vApplicationStackOverflowHook(void);
-
-void vApplicationStackOverflowHook(void)
-{
-	/* Only called if configCHECK_FOR_STACK_OVERFLOW is not set to 0 in FreeRTOSConfig.h */
-	taskDISABLE_INTERRUPTS();
-	for (;;)
-	{
-	}
-}
+#endif /* TASK_MONITOR_H_ */

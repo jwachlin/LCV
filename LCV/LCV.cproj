@@ -32,20 +32,20 @@
       <framework-data>
   <options>
     <option id="common.boards" value="Add" config="" content-id="Atmel.ASF" />
-    <option id="sam0.drivers.system" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="common.services.ioport" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="common2.services.delay" value="Add" config="cycle" content-id="Atmel.ASF" />
     <option id="sam0.drivers.adc" value="Add" config="callback" content-id="Atmel.ASF" />
     <option id="sam0.drivers.dac" value="Add" config="callback" content-id="Atmel.ASF" />
-    <option id="common2.services.delay" value="Add" config="cycle" content-id="Atmel.ASF" />
-    <option id="thirdparty.os.freertos.version" value="Add" config="10.0.0" content-id="Atmel.ASF" />
-    <option id="common.services.ioport" value="Add" config="" content-id="Atmel.ASF" />
     <option id="sam0.drivers.port" value="Add" config="" content-id="Atmel.ASF" />
     <option id="sam0.drivers.sercom.i2c.master" value="Add" config="callback" content-id="Atmel.ASF" />
     <option id="sam0.drivers.sercom.spi" value="Add" config="callback" content-id="Atmel.ASF" />
+    <option id="sam0.drivers.system" value="Add" config="" content-id="Atmel.ASF" />
     <option id="sam0.drivers.wdt" value="Add" config="callback" content-id="Atmel.ASF" />
+    <option id="thirdparty.os.freertos.version" value="Add" config="10.0.0" content-id="Atmel.ASF" />
     <option id="sam0.utils.linker_scripts" value="Add" config="" content-id="Atmel.ASF" />
   </options>
   <configurations>
-    <configuration key="config.thirdparty.os.freertos-10_0_0.memory_manager" value="1_static_allocation" default="1_static_allocation" content-id="Atmel.ASF" />
+    <configuration key="config.thirdparty.os.freertos-10_0_0.memory_manager" value="4_first_fit_coallesce" default="1_static_allocation" content-id="Atmel.ASF" />
   </configurations>
   <files>
     <file path="src/main.c" framework="" version="" source="common2/applications/user_application/main.c" changed="False" content-id="Atmel.ASF" />
@@ -286,7 +286,7 @@
     <file path="src/ASF/thirdparty/freertos/freertos-10.0.0/Source/portable/readme.txt" framework="" version="3.40.0" source="thirdparty\freertos\freertos-10.0.0\Source\portable\readme.txt" changed="False" content-id="Atmel.ASF" />
     <file path="src/ASF/thirdparty/freertos/freertos-10.0.0/Source/portable/GCC/ARM_CM0/port.c" framework="" version="3.40.0" source="thirdparty\freertos\freertos-10.0.0\Source\portable\GCC\ARM_CM0\port.c" changed="False" content-id="Atmel.ASF" />
     <file path="src/ASF/thirdparty/freertos/freertos-10.0.0/Source/portable/GCC/ARM_CM0/portmacro.h" framework="" version="3.40.0" source="thirdparty\freertos\freertos-10.0.0\Source\portable\GCC\ARM_CM0\portmacro.h" changed="False" content-id="Atmel.ASF" />
-    <file path="src/ASF/thirdparty/freertos/freertos-10.0.0/Source/portable/MemMang/heap_1.c" framework="" version="3.40.0" source="thirdparty\freertos\freertos-10.0.0\Source\portable\MemMang\heap_1.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/freertos/freertos-10.0.0/Source/portable/MemMang/heap_4.c" framework="" version="3.40.0" source="thirdparty\freertos\freertos-10.0.0\Source\portable\MemMang\heap_4.c" changed="False" content-id="Atmel.ASF" />
   </files>
   <documentation help="http://asf.atmel.com/docs/3.40.0/common.applications.user_application.sam0_system.user_board.atsamd21g18a/html/index.html" />
   <offline-documentation help="" />
@@ -747,7 +747,13 @@
     <Compile Include="src\ASF\thirdparty\freertos\freertos-10.0.0\Source\portable\GCC\ARM_CM0\port.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\ASF\thirdparty\freertos\freertos-10.0.0\Source\portable\MemMang\heap_1.c">
+    <Compile Include="src\ASF\thirdparty\freertos\freertos-10.0.0\Source\portable\MemMang\heap_4.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\task_monitor.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\task_monitor.h">
       <SubType>compile</SubType>
     </Compile>
     <None Include="src\ASF\thirdparty\freertos\freertos-10.0.0\Source\portable\GCC\ARM_CM0\portmacro.h">

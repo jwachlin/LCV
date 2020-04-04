@@ -20,7 +20,9 @@ src\ASF\thirdparty\freertos\freertos-10.0.0\Source\event_groups.c
 
 src\ASF\thirdparty\freertos\freertos-10.0.0\Source\portable\GCC\ARM_CM0\port.c
 
-src\ASF\thirdparty\freertos\freertos-10.0.0\Source\portable\MemMang\heap_1.c
+src\ASF\thirdparty\freertos\freertos-10.0.0\Source\portable\MemMang\heap_4.c
+
+src\task_monitor.c
 
 src\ASF\thirdparty\freertos\freertos-10.0.0\Source\list.c
 
