@@ -21,35 +21,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
 /**
- * \file task_monitor.h
+ * \file task_sensor.h
  *
- * \brief Monitoring task
+ * \brief Sensor interfacing task
  *
  */
 
-#ifndef TASK_MONITOR_H_
-#define TASK_MONITOR_H_
 
-#include "FreeRTOS.h"
-
-#include "asf.h"
-
-// Task priorities
-#define taskMONITOR_TASK_PRIORITY		(tskIDLE_PRIORITY+3)
-#define taskCONTROL_TASK_PRIORITY		(tskIDLE_PRIORITY+2)
-#define taskSENSOR_TASK_PRIORITY		(tskIDLE_PRIORITY+2)
-#define taskHMI_TASK_PRIORITY			(tskIDLE_PRIORITY+1)
-
-// Task size allocation in words. Note 1 word = 4 bytes
-#define taskMONITOR_TASK_STACK_SIZE		(256)
-#define taskCONTROL_TASK_STACK_SIZE		(512)
-#define taskSENSOR_TASK_STACK_SIZE		(512)
-#define taskHMI_TASK_STACK_SIZE			(512)
-
-void create_monitor_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_priority);
-void create_control_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_priority);
-void create_sensor_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_priority);
-void create_hmi_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_priority);
+#ifndef TASK_SENSOR_H_
+#define TASK_SENSOR_H_
 
 
-#endif /* TASK_MONITOR_H_ */
+
+
+
+#endif /* TASK_SENSOR_H_ */

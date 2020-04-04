@@ -38,6 +38,9 @@ int main (void)
 	
 	// Set up application tasks.
 	create_monitor_task(taskMONITOR_TASK_STACK_SIZE, taskMONITOR_TASK_PRIORITY);
+	create_control_task(taskCONTROL_TASK_STACK_SIZE, taskCONTROL_TASK_PRIORITY);
+	create_sensor_task(taskSENSOR_TASK_STACK_SIZE, taskSENSOR_TASK_PRIORITY);
+	create_hmi_task(taskHMI_TASK_STACK_SIZE, taskHMI_TASK_PRIORITY);
 
 	vTaskStartScheduler();
 	

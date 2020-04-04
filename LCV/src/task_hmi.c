@@ -21,35 +21,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
 /**
- * \file task_monitor.h
+ * \file task_hmi.c
  *
- * \brief Monitoring task
+ * \brief Human-machine interfacing task
  *
  */
 
-#ifndef TASK_MONITOR_H_
-#define TASK_MONITOR_H_
+#include "task_monitor.h"
 
-#include "FreeRTOS.h"
+#include "task_hmi.h"
 
-#include "asf.h"
+// Task handle
+static TaskHandle_t hmi_task_handle = NULL;
 
-// Task priorities
-#define taskMONITOR_TASK_PRIORITY		(tskIDLE_PRIORITY+3)
-#define taskCONTROL_TASK_PRIORITY		(tskIDLE_PRIORITY+2)
-#define taskSENSOR_TASK_PRIORITY		(tskIDLE_PRIORITY+2)
-#define taskHMI_TASK_PRIORITY			(tskIDLE_PRIORITY+1)
+static void hmi_task(void * pvParameters)
+{
+	UNUSED(pvParameters);
+	
+	for (;;)
+	{
+		vTaskDelay(pdMS_TO_TICKS(1000)); // TODO do something here
+	}
+}
 
-// Task size allocation in words. Note 1 word = 4 bytes
-#define taskMONITOR_TASK_STACK_SIZE		(256)
-#define taskCONTROL_TASK_STACK_SIZE		(512)
-#define taskSENSOR_TASK_STACK_SIZE		(512)
-#define taskHMI_TASK_STACK_SIZE			(512)
+/*
+*	\brief Creates the human-machine-interface task
+*
+*	\param stack_depth_words The depth of the stack in words
+*	\param task_priority The task priority
+*/
 
-void create_monitor_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_priority);
-void create_control_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_priority);
-void create_sensor_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_priority);
-void create_hmi_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_priority);
-
-
-#endif /* TASK_MONITOR_H_ */
+void create_hmi_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_priority)
+{
+	xTaskCreate(hmi_task, (const char * const) "HMI",
+		stack_depth_words, NULL, task_priority, &hmi_task_handle);
+}

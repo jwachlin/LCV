@@ -750,10 +750,28 @@
     <Compile Include="src\ASF\thirdparty\freertos\freertos-10.0.0\Source\portable\MemMang\heap_4.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\task_control.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\task_control.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\task_hmi.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\task_hmi.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\task_monitor.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\task_monitor.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\task_sensor.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\task_sensor.h">
       <SubType>compile</SubType>
     </Compile>
     <None Include="src\ASF\thirdparty\freertos\freertos-10.0.0\Source\portable\GCC\ARM_CM0\portmacro.h">
