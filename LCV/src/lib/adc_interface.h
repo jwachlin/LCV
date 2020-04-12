@@ -33,6 +33,7 @@ SOFTWARE.*/
 #define NUM_PRESSURE_SENSOR_CHANNELS		3
 
 void adc_interface_init(void);
+void adc_request_update(void);
 float get_pressure_sensor_cmH2O(uint8_t channel);
 float get_pressure_sensor_cmH2O_voted(void);
 float get_input_potentiometer_portion(void);

@@ -70,5 +70,5 @@ SOFTWARE.*/
  void drive_motor(float command)
  {
 	uint16_t dac_out = command * 1023;
-	dac_chan_write_job(&module, DAC_CHANNEL_0, dac_out);
+	dac_chan_write(&module, DAC_CHANNEL_0, dac_out);
  }

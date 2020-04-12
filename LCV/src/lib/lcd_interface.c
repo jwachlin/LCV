@@ -37,10 +37,8 @@ SOFTWARE.*/
 
  #include "lcd_interface.h"
 
- #define LCD_SERCOM					SERCOM1
  #define SCREEN_BUFFER_SIZE			(80)
 
- static struct i2c_master_module i2c_master_instance;
  static struct i2c_master_packet screen_buffer_first_half_packet;
  static struct i2c_master_packet screen_buffer_second_half_packet;
  static struct i2c_master_packet cursor_set_packet;
@@ -55,17 +53,6 @@ SOFTWARE.*/
 
  bool lcd_init(void)
  {
-	struct i2c_master_config config_i2c_master;
-	i2c_master_get_config_defaults(&config_i2c_master);
-	config_i2c_master.baud_rate = 45; // Set in # of kHz
-	config_i2c_master.buffer_timeout = 65535;
-	config_i2c_master.pinmux_pad0 = PIN_PA16C_SERCOM1_PAD0;
-	config_i2c_master.pinmux_pad1 = PIN_PA17C_SERCOM1_PAD1;
-	
-	/* Initialize and enable device with config */
-	while(i2c_master_init(&i2c_master_instance, LCD_SERCOM, &config_i2c_master) != STATUS_OK);
-	i2c_master_enable(&i2c_master_instance);
-
 	// Turn on screen
 	static uint8_t on_screen_buffer[2] = {LCD_PREFIX, LCD_COMMAND_DISPLAY_ON};
 	power_on_packet.address = LCD_I2C_ADDRESS;
@@ -73,7 +60,9 @@ SOFTWARE.*/
 	power_on_packet.data_length = 2;
 	power_on_packet.high_speed = false;
 	power_on_packet.ten_bit_address = false;
-	i2c_master_write_packet_job(&i2c_master_instance, &power_on_packet);
+	i2c_transaction_t transaction;
+	transaction.packet = power_on_packet;
+	add_lcd_i2c_transaction_to_queue(transaction);
 	
 	set_backlight(2);
 
@@ -190,6 +179,8 @@ bool send_buffer(SCREEN_TYPE screen)
 		}
 	}
 
+	i2c_transaction_t transaction;
+
 	// First set cursor to start
 	static uint8_t cursor_set[3] = {LCD_PREFIX, LCD_COMMAND_SET_CURSOR, 0x00};
 	cursor_set_packet.address = LCD_I2C_ADDRESS;
@@ -197,7 +188,8 @@ bool send_buffer(SCREEN_TYPE screen)
 	cursor_set_packet.data_length = 3;
 	cursor_set_packet.high_speed = false;
 	cursor_set_packet.ten_bit_address = false;
-	i2c_master_write_packet_job(&i2c_master_instance, &cursor_set_packet);
+	transaction.packet = cursor_set_packet;
+	add_lcd_i2c_transaction_to_queue(transaction);
 
 	// Send first and third lines
 	screen_buffer_first_half_packet.address = LCD_I2C_ADDRESS;
@@ -205,7 +197,8 @@ bool send_buffer(SCREEN_TYPE screen)
 	screen_buffer_first_half_packet.data_length = 40;
 	screen_buffer_first_half_packet.high_speed = false;
 	screen_buffer_first_half_packet.ten_bit_address = false;
-	i2c_master_write_packet_job(&i2c_master_instance, &screen_buffer_first_half_packet);
+	transaction.packet = screen_buffer_first_half_packet;
+	add_lcd_i2c_transaction_to_queue(transaction);
 
 	// Send second and fourth lines
 	screen_buffer_second_half_packet.address = LCD_I2C_ADDRESS;
@@ -213,7 +206,8 @@ bool send_buffer(SCREEN_TYPE screen)
 	screen_buffer_second_half_packet.data_length = 40;
 	screen_buffer_second_half_packet.high_speed = false;
 	screen_buffer_second_half_packet.ten_bit_address = false;
-	i2c_master_write_packet_job(&i2c_master_instance, &screen_buffer_second_half_packet);
+	transaction.packet = screen_buffer_second_half_packet;
+	add_lcd_i2c_transaction_to_queue(transaction);
 }
 
 bool set_contrast(uint8_t level)
@@ -231,7 +225,9 @@ bool set_contrast(uint8_t level)
 	contrast_packet.data_length = 3;
 	contrast_packet.high_speed = false;
 	contrast_packet.ten_bit_address = false;
-	i2c_master_write_packet_job(&i2c_master_instance, &contrast_packet);
+	i2c_transaction_t transaction;
+	transaction.packet = contrast_packet;
+	add_lcd_i2c_transaction_to_queue(transaction);
 	return true;
 }
 
@@ -250,7 +246,9 @@ bool set_backlight(uint8_t level)
 	backlight_packet.data_length = 3;
 	backlight_packet.high_speed = false;
 	backlight_packet.ten_bit_address = false;
-	i2c_master_write_packet_job(&i2c_master_instance, &backlight_packet);
+	i2c_transaction_t transaction;
+	transaction.packet = backlight_packet;
+	add_lcd_i2c_transaction_to_queue(transaction);
 	return true;
 }
 

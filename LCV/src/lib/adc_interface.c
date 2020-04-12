@@ -37,12 +37,14 @@ SOFTWARE.*/
  #define ADC_MAX				(4095.0)
 
  static struct adc_module adc_module_instance;
- static volatile uint16_t adc_buffer[ADC_BUFFER_SIZE];
+ static volatile uint8_t adc_buffer[ADC_BUFFER_SIZE];
 
  static volatile uint16_t pressure_raw_int[3];
  static volatile uint16_t potentiometer_meas_raw;
  static volatile uint16_t motor_temp_meas_raw;
  static volatile uint16_t flow_meas_raw;
+
+ static volatile bool setup = false;
 
  static void adc_cb(struct adc_module *const module)
  {
@@ -60,8 +62,6 @@ SOFTWARE.*/
 		// Flow sensor at ain[10]
 		memcpy(&flow_meas_raw, &adc_buffer[16], 2);
 	}
-	// Trigger new measurement
-	adc_read_buffer_job(&adc_module_instance, adc_buffer, ADC_BUFFER_SIZE);
  }
 
  /*
@@ -78,12 +78,12 @@ SOFTWARE.*/
 	config.negative_input = ADC_NEGATIVE_INPUT_GND;
 	config.differential_mode = false;
 	config.clock_source = GCLK_GENERATOR_1; // 8Mhz clock TODO is this fast enough?
-	config.clock_prescaler = ADC_CLOCK_PRESCALER_DIV4;
+	config.clock_prescaler = ADC_CLOCK_PRESCALER_DIV256;
 	config.gain_factor = ADC_GAIN_FACTOR_1X;
 	config.resolution = ADC_RESOLUTION_12BIT;
 
 	// Scan from 2 through 10
-	config.pin_scan.offset_start_scan = 2;
+	config.pin_scan.offset_start_scan = 0;
 	config.pin_scan.inputs_to_scan = 9;
 
 	adc_init(&adc_module_instance, ADC, &config);
@@ -93,8 +93,19 @@ SOFTWARE.*/
 	adc_register_callback(&adc_module_instance, adc_cb, ADC_CALLBACK_READ_BUFFER);
 	adc_enable_callback(&adc_module_instance, ADC_CALLBACK_READ_BUFFER);
 
+	setup = true;
+
 	// Start the conversion
-	adc_read_buffer_job(&adc_module_instance, adc_buffer, ADC_BUFFER_SIZE);
+	adc_request_update();
+ }
+
+ void adc_request_update(void)
+ {
+	// Trigger new measurement
+	if(setup)
+	{
+		adc_read_buffer_job(&adc_module_instance, adc_buffer, ADC_BUFFER_SIZE);
+	}
  }
 
  /*

@@ -35,11 +35,20 @@ SOFTWARE.*/
 
 #include "task_hmi.h"
 
+#define LCD_I2C_QUEUE_SIZE			(10)
+
+#define LCD_SERCOM					SERCOM1
+#define LCD_SERCOM_IRQn				SERCOM1_IRQn
+
 // Task handle
 static TaskHandle_t hmi_task_handle = NULL;
+static TaskHandle_t lcd_i2c_task_handle = NULL;
 
 static TimerHandle_t screen_update_handle = NULL;
 static TimerHandle_t screen_change_handle = NULL;
+
+static QueueHandle_t lcd_i2c_queue = NULL;
+static struct i2c_master_module i2c_master_instance;
 
 static bool display_main_page = true;
 
@@ -156,8 +165,38 @@ static void vScreenRefreshTimerCallback( TimerHandle_t xTimer )
 	}
 }
 
+void handle_i2c_write_complete(struct i2c_master_module *const module)
+{
+	i2c_master_get_job_status(module);
+
+	xTaskResumeFromISR(lcd_i2c_task_handle);
+}
+
+static void lcd_i2c_hw_setup(void)
+{
+	struct i2c_master_config config_i2c_master;
+	i2c_master_get_config_defaults(&config_i2c_master);
+	config_i2c_master.baud_rate = 45; // Set in # of kHz
+	config_i2c_master.buffer_timeout = 65535;
+	config_i2c_master.pinmux_pad0 = PIN_PA16C_SERCOM1_PAD0;
+	config_i2c_master.pinmux_pad1 = PIN_PA17C_SERCOM1_PAD1;
+	
+	/* Initialize and enable device with config */
+	while(i2c_master_init(&i2c_master_instance, LCD_SERCOM, &config_i2c_master) != STATUS_OK);
+
+	// Uses FreeRTOS, so need to limit priority
+	irq_register_handler(LCD_SERCOM_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
+	i2c_master_register_callback(&i2c_master_instance, handle_i2c_write_complete, I2C_MASTER_CALLBACK_WRITE_COMPLETE);
+	i2c_master_enable_callback(&i2c_master_instance, I2C_MASTER_CALLBACK_WRITE_COMPLETE);
+
+	i2c_master_enable(&i2c_master_instance);
+}
+
 static void hmi_task(void * pvParameters)
 {
+	UNUSED(pvParameters);
+
+	lcd_i2c_hw_setup();
 	lcd_init();
 
 	screen_update_handle = xTimerCreate("SCREEN_TIM",
@@ -180,8 +219,6 @@ static void hmi_task(void * pvParameters)
 		xTimerStart(screen_change_handle, 0);
 	}
 
-	UNUSED(pvParameters);
-
 	const TickType_t xFrequency = pdMS_TO_TICKS(20);	// 50 Hz rate
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 	
@@ -198,6 +235,26 @@ static void hmi_task(void * pvParameters)
 	}
 }
 
+static void lcd_i2c_task(void * pvParameters)
+{
+	UNUSED(pvParameters);
+
+	i2c_transaction_t transaction;
+
+	for (;;)
+	{
+		if(xQueueReceive(lcd_i2c_queue, &transaction,portMAX_DELAY) == pdTRUE)
+		{
+			// Send transaction
+			i2c_master_write_packet_job(&i2c_master_instance, &transaction.packet);
+
+			// Set up timeout timer
+
+			vTaskSuspend(lcd_i2c_task_handle);
+		}
+	}
+}
+
 /*
 *	\brief Creates the human-machine-interface task
 *
@@ -207,8 +264,13 @@ static void hmi_task(void * pvParameters)
 
 void create_hmi_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_priority)
 {
+	lcd_i2c_queue = xQueueCreate(LCD_I2C_QUEUE_SIZE, sizeof(i2c_transaction_t));
+
 	xTaskCreate(hmi_task, (const char * const) "HMI",
 		stack_depth_words, NULL, task_priority, &hmi_task_handle);
+
+	xTaskCreate(lcd_i2c_task, (const char * const) "I2C",
+		256, NULL, task_priority, &lcd_i2c_task_handle);
 }
 
 /*
@@ -229,4 +291,12 @@ bool system_is_enabled(void)
 bool get_pushbutton_level(void)
 {
 	return ioport_get_pin_level(INPUT_PUSHBUTTON_GPIO);
+}
+
+void add_lcd_i2c_transaction_to_queue(i2c_transaction_t transaction)
+{
+	if(lcd_i2c_queue)
+	{
+		xQueueSend(lcd_i2c_queue, &transaction, 0);
+	}
 }

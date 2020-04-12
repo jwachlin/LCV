@@ -45,8 +45,7 @@ static struct i2c_master_module i2c_master_instance;
 /*
 *	\brief Sets up sensor interface hardware
 *
-*	Sets up SERCOM i2c to flow meter
-*	Sets up ADC for communication with pressure sensors
+*	Sets up ADC for communication with pressure sensors and flow meter
 */
 static void sensor_hw_init(void)
 {
@@ -61,9 +60,6 @@ static void sensor_hw_init(void)
 	while(i2c_master_init(&i2c_master_instance, FLOW_METER_SERCOM, &config_i2c_master) != STATUS_OK);
 	i2c_master_enable(&i2c_master_instance);
 
-	flow_sensor_power_on();
-	flow_sensor_init(&i2c_master_instance);
-
 	adc_interface_init();
 }
 
@@ -75,9 +71,6 @@ static void sensor_task(void * pvParameters)
 	UNUSED(pvParameters);
 
 	sensor_hw_init();
-
-	vTaskDelay(pdMS_TO_TICKS(10));
-	flow_sensor_request_flow_slm(&i2c_master_instance); // first read is invalid
 	
 	for (;;)
 	{

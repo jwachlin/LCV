@@ -40,7 +40,13 @@ typedef enum
 	STAGE_IE=4
 } SETTINGS_INPUT_STAGE;
 
+typedef struct 
+{
+	struct i2c_master_packet packet;
+} i2c_transaction_t;
+
 bool system_is_enabled(void);
 bool get_pushbutton_level(void);
+void add_lcd_i2c_transaction_to_queue(i2c_transaction_t transaction);
 
 #endif /* TASK_HMI_H_ */

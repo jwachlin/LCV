@@ -45,6 +45,7 @@ static lcv_control_t lcv_control;
 
 static void update_parameters_from_sensors(lcv_state_t * state, lcv_control_t * control)
 {
+	adc_request_update();
 	state->current_state.enable = system_is_enabled();
 	state->setting_state.enable = state->current_state.enable;
 
@@ -77,7 +78,7 @@ static void control_task(void * pvParameters)
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 
 	controller_param_t control_params;
-	control_params.kf = 0.1;
+	control_params.kf = 0.03;
 	control_params.kp = 0.0;
 	control_params.kd = 0.0;
 	control_params.ki = 0.0;
@@ -85,6 +86,8 @@ static void control_task(void * pvParameters)
 	control_params.interal_antiwindup = 0.3;
 	control_params.max_output = 1.0;
 	control_params.min_output = 0.0;
+
+	init_motor_interface();
 
 	for (;;)
 	{

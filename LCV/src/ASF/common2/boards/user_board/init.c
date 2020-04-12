@@ -87,4 +87,7 @@ void system_board_init(void)
 	ioport_set_pin_dir(POWER_MONITOR_GPIO, IOPORT_DIR_INPUT);
 	ioport_set_pin_mode(POWER_MONITOR_GPIO, IOPORT_MODE_PULLDOWN);
 	
+	// Vref
+	ioport_set_pin_mode(VREFA_GPIO, VREFA_GPIO_FLAGS);
+	ioport_disable_pin(VREFA_GPIO);
 }

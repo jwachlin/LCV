@@ -35,7 +35,7 @@ static void configure_wdt(void)
 {
 	struct wdt_conf config_wdt;
 	wdt_get_config_defaults(&config_wdt);
-	config_wdt.always_on = true; // Cannot be turned off
+	config_wdt.always_on = false; // Can be disabled TODO in final, maybe lock this in, but makes debugging difficult
 	config_wdt.clock_source = GCLK_GENERATOR_4; // 8MHz / 255 = 32.372 kHz
 	config_wdt.timeout_period = WDT_PERIOD_16384CLK; // Approx 0.5 seconds
 	wdt_set_config(&config_wdt);
@@ -112,4 +112,10 @@ ISR(HardFault_Handler)
 	for (;;)
 	{
 	}
+}
+
+ISR(NMI_Handler)
+{
+	// Yikes, something really bad happened
+	volatile int a = 0;
 }
