@@ -56,6 +56,8 @@ void system_board_init(void)
 	ioport_disable_pin(FLOW_SENSOR_SDA_GPIO);
 	ioport_set_pin_mode(FLOW_SENSOR_SCL_GPIO, FLOW_SENSOR_SCL_GPIO_FLAGS);
 	ioport_disable_pin(FLOW_SENSOR_SCL_GPIO);
+	ioport_set_pin_mode(FLOW_SENSOR_ANALOG_GPIO, FLOW_SENSOR_ANALOG_GPIO_FLAGS);
+	ioport_disable_pin(FLOW_SENSOR_ANALOG_GPIO);
 	
 	// Screen
 	ioport_set_pin_dir(LCD_POWER_GPIO, IOPORT_DIR_OUTPUT);
@@ -80,5 +82,9 @@ void system_board_init(void)
 	ioport_set_pin_level(BUZZER_GPIO, !BUZZER_GPIO_ACTIVE_LEVEL);
 	ioport_set_pin_dir(WATCHDOG_GPIO, IOPORT_DIR_OUTPUT);
 	ioport_set_pin_level(WATCHDOG_GPIO, !WATCHDOG_GPIO_ACTIVE_LEVEL);
+
+	// Power monitoring
+	ioport_set_pin_dir(POWER_MONITOR_GPIO, IOPORT_DIR_INPUT);
+	ioport_set_pin_mode(POWER_MONITOR_GPIO, IOPORT_MODE_PULLDOWN);
 	
 }

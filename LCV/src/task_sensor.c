@@ -74,6 +74,8 @@ static void sensor_task(void * pvParameters)
 {
 	UNUSED(pvParameters);
 
+	sensor_hw_init();
+
 	vTaskDelay(pdMS_TO_TICKS(10));
 	flow_sensor_request_flow_slm(&i2c_master_instance); // first read is invalid
 	
@@ -91,8 +93,6 @@ static void sensor_task(void * pvParameters)
 */
 void create_sensor_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_priority)
 {
-	sensor_hw_init();
-	
 	xTaskCreate(sensor_task, (const char * const) "SENSOR",
 		stack_depth_words, NULL, task_priority, &sensor_task_handle);
 }

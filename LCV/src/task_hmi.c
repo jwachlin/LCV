@@ -28,14 +28,72 @@ SOFTWARE.*/
  */
 
 #include "task_monitor.h"
+#include "lib/lcd_interface.h"
+#include "lib/alarm_monitoring.h"
 
 #include "task_hmi.h"
 
 // Task handle
 static TaskHandle_t hmi_task_handle = NULL;
 
+static TimerHandle_t screen_update_handle = NULL;
+static TimerHandle_t screen_change_handle = NULL;
+
+static bool display_main_page = true;
+
+void vScreenChangeTimerCallback( TimerHandle_t xTimer )
+{
+	UNUSED(xTimer);
+	display_main_page = !display_main_page;
+}
+
+void vScreenRefreshTimerCallback( TimerHandle_t xTimer )
+{
+	UNUSED(xTimer);
+	
+	// Don't display alarm page if no alarms
+	if(!display_main_page)
+	{
+		if(!any_alarms_set())
+		{
+			display_main_page = true;
+		}
+	}
+
+	if(display_main_page)
+	{
+		send_buffer(MAIN_SCREEN);
+	}
+	else
+	{
+		send_buffer(ALARM_SCREEN);
+	}
+}
+
 static void hmi_task(void * pvParameters)
 {
+	lcd_init();
+
+	screen_update_handle = xTimerCreate("SCREEN_TIM",
+				pdMS_TO_TICKS(30),
+				pdTRUE,
+				(void *) 0,
+				vScreenRefreshTimerCallback);
+	if(screen_update_handle)
+	{
+		xTimerStart(screen_update_handle, 0);
+	}
+
+	screen_change_handle = xTimerCreate("SCREEN_CHG",
+		pdMS_TO_TICKS(2000),
+		pdTRUE,
+		(void *) 0,
+		vScreenChangeTimerCallback);
+	if(screen_change_handle)
+	{
+		xTimerStart(screen_change_handle, 0);
+	}
+
 	UNUSED(pvParameters);
 	
 	for (;;)
