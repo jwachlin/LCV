@@ -176,6 +176,7 @@ static void lcd_i2c_hw_setup(void)
 {
 	struct i2c_master_config config_i2c_master;
 	i2c_master_get_config_defaults(&config_i2c_master);
+	config_i2c_master.generator_source = GCLK_GENERATOR_1;	// 8 MHz
 	config_i2c_master.baud_rate = 45; // Set in # of kHz
 	config_i2c_master.buffer_timeout = 65535;
 	config_i2c_master.pinmux_pad0 = PIN_PA16C_SERCOM1_PAD0;
