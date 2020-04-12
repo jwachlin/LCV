@@ -276,32 +276,43 @@ void update_main_buffer(lcv_parameters_t * new_settings,  SETTINGS_INPUT_STAGE s
 
 	snprintf(&main_screen_buffer[10],10, "V:%iml", current_settings.tidal_volume_ml);
 
-	snprintf(&main_screen_buffer[20],20, "PEEP:%icmH20", current_settings.peep_cm_h20);
+	snprintf(&main_screen_buffer[20],13, "PEEP:%icmH20", current_settings.peep_cm_h20);
+
+	uint8_t current_inspiratory_ones = current_settings.ie_ratio_tenths / 10;
+	uint8_t current_inspiratory_tenths = current_settings.ie_ratio_tenths - (10*current_inspiratory_ones);
+	snprintf(&main_screen_buffer[32],9, "IE:%i.%i:1", current_inspiratory_ones, current_inspiratory_tenths);
 
 	snprintf(&main_screen_buffer[40],13, "PIP:%icmH20", current_settings.pip_cm_h20);
 
 	snprintf(&main_screen_buffer[52],7, "BPM:%i", current_settings.breath_per_min);
 
 	// Fill in settings input display
+	uint8_t setting_inspiratory_ones = new_settings->ie_ratio_tenths / 10;
+	uint8_t setting_inspiratory_tenths = new_settings->ie_ratio_tenths - (10*setting_inspiratory_ones);
+
 	switch (stage)
 	{
 		case STAGE_NONE:
-		break;
+			break;
 
 		case STAGE_BPM:
-		sprintf(&main_screen_buffer[60], "SET BPM:%i", new_settings->breath_per_min);
-		break;
+			sprintf(&main_screen_buffer[60], "SET BPM:%i", new_settings->breath_per_min);
+			break;
 
 		case STAGE_PEEP:
-		sprintf(&main_screen_buffer[60], "SET PEEP:%icmH20", new_settings->peep_cm_h20);
-		break;
+			sprintf(&main_screen_buffer[60], "SET PEEP:%icmH20", new_settings->peep_cm_h20);
+			break;
 
 		case STAGE_PIP:
-		sprintf(&main_screen_buffer[60], "SET PIP:%icmH20", new_settings->pip_cm_h20);
-		break;
+			sprintf(&main_screen_buffer[60], "SET PIP:%icmH20", new_settings->pip_cm_h20);
+			break;
+
+		case STAGE_IE:
+			sprintf(&main_screen_buffer[60], "SET I:E: %i.%i:1", setting_inspiratory_ones, setting_inspiratory_tenths);
+			break;
 		
 		default:
-		break;
+			break;
 	}
 }
 

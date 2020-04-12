@@ -46,10 +46,10 @@ static bool display_main_page = true;
 static SETTINGS_INPUT_STAGE stage = STAGE_NONE;
 static lcv_parameters_t settings_input;
 static const lcv_parameters_t lower_settings_range = {.enable = 0, .tidal_volume_ml = 100,
-.peep_cm_h20 = 3, .pip_cm_h20 = 10, .breath_per_min = 6};
+.peep_cm_h20 = 3, .pip_cm_h20 = 10, .breath_per_min = 6, .ie_ratio_tenths=5};
 
 static const lcv_parameters_t upper_settings_range = {.enable = 0, .tidal_volume_ml = 2500,
-.peep_cm_h20 = 20, .pip_cm_h20 = 35, .breath_per_min = 60};
+.peep_cm_h20 = 20, .pip_cm_h20 = 35, .breath_per_min = 60, .ie_ratio_tenths=40};
 
 
 static void handle_hmi_input(void)
@@ -75,6 +75,10 @@ static void handle_hmi_input(void)
 				break;
 
 			case STAGE_PIP:
+				stage = STAGE_IE;
+				break;
+
+			case STAGE_IE:
 				// Save settings
 				update_settings(&settings_input);
 				stage = STAGE_NONE;
@@ -108,6 +112,11 @@ static void handle_hmi_input(void)
 		case STAGE_PIP:
 			settings_input.pip_cm_h20 = (int32_t) lower_settings_range.pip_cm_h20 +
 			knob_portion * (upper_settings_range.pip_cm_h20 - lower_settings_range.pip_cm_h20);
+			break;
+
+		case STAGE_IE:
+			settings_input.ie_ratio_tenths = (int32_t) lower_settings_range.ie_ratio_tenths +
+			knob_portion * (upper_settings_range.ie_ratio_tenths - lower_settings_range.ie_ratio_tenths);
 			break;
 		
 		default:

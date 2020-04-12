@@ -36,7 +36,8 @@ typedef enum
 	STAGE_NONE=0,
 	STAGE_BPM=1,
 	STAGE_PEEP=2,
-	STAGE_PIP=3
+	STAGE_PIP=3,
+	STAGE_IE=4
 } SETTINGS_INPUT_STAGE;
 
 bool system_is_enabled(void);

@@ -142,4 +142,5 @@ void update_settings(lcv_parameters_t * new_settings)
 	lcv_state.setting_state.breath_per_min = new_settings->breath_per_min;
 	lcv_state.setting_state.peep_cm_h20 = new_settings->peep_cm_h20;
 	lcv_state.setting_state.pip_cm_h20 = new_settings->pip_cm_h20;
+	lcv_state.setting_state.ie_ratio_tenths = new_settings->ie_ratio_tenths;
 }
