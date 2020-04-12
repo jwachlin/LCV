@@ -46,15 +46,15 @@ SOFTWARE.*/
  
  static uint32_t calculate_new_setpoint(uint32_t stage_start_time_ms, uint32_t current_time_ms, lcv_state_t * state, lcv_control_t * control)
  {
-	uint32_t time_into_profile = current_time_ms - stage_start_time_ms;
+	int32_t time_into_profile = current_time_ms - stage_start_time_ms;
 	uint32_t new_state_start = stage_start_time_ms;
 	// In PEEP to PIP stage?
 	if(time_into_profile < control->peep_to_pip_rampup_ms)
 	{
 		// Linear ramp up
 		control->pressure_set_point_cm_h20 = state->setting_state.peep_cm_h20;
-		control->pressure_set_point_cm_h20 += (int32_t) ((float) (time_into_profile) / (float) control->peep_to_pip_rampup_ms) * 
-												(state->setting_state.pip_cm_h20 - state->setting_state.peep_cm_h20);
+		float section_factor = ((float) (time_into_profile) / (float) control->peep_to_pip_rampup_ms);
+		control->pressure_set_point_cm_h20 += (int32_t)  (section_factor * (state->setting_state.pip_cm_h20 - state->setting_state.peep_cm_h20));
 	}
 	else if(time_into_profile < (control->peep_to_pip_rampup_ms + control->pip_hold_ms))
 	{
@@ -203,7 +203,7 @@ SOFTWARE.*/
 
 	// First, determine what the new setpoint should be
 	// Updates profile if enters a new profile
-	start_of_current_profile_time_ms = calculate_new_setpoint(current_time_ms, start_of_current_profile_time_ms, state, control);
+	start_of_current_profile_time_ms = calculate_new_setpoint(start_of_current_profile_time_ms, current_time_ms, state, control);
 
 	// Then, run the controller to track this setpoint
 	float output = pidf_control(control, params);

@@ -32,6 +32,7 @@ SOFTWARE.*/
 #define MOTOR_INTERFACE_H_
 
 void init_motor_interface(void);
+void motor_status_monitor(void);
 void enable_motor(void);
 void disable_motor(void);
 void drive_motor(float command);

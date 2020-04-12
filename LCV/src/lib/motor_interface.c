@@ -30,6 +30,7 @@ SOFTWARE.*/
  #include "../task_monitor.h"
 
  #include "adc_interface.h"
+ #include "alarm_monitoring.h"
 
  #include "motor_interface.h"
 
@@ -55,6 +56,27 @@ SOFTWARE.*/
 	dac_enable(&module);
 
 	drive_motor(0.0);
+ }
+
+ void motor_status_monitor(void)
+ {
+	if(ioport_get_pin_level(MOTOR_READY_GPIO) == LOW)
+	{
+		set_alarm(ALARM_MOTOR_ERROR, true);
+	}
+	else
+	{
+		set_alarm(ALARM_MOTOR_ERROR, false);
+	}
+
+	if(get_motor_temp_celsius() > 100)
+	{
+		set_alarm(ALARM_MOTOR_TEMP, true);
+	}
+	else
+	{
+		set_alarm(ALARM_MOTOR_TEMP, false);
+	}
  }
 
  void enable_motor(void)

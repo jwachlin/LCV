@@ -51,7 +51,7 @@ static void update_parameters_from_sensors(lcv_state_t * state, lcv_control_t * 
 
 	control->pressure_current_cm_h20 =  (int32_t) get_pressure_sensor_cmH2O_voted();
 
-
+	motor_status_monitor();
 }
 
 static void control_task(void * pvParameters)
@@ -69,8 +69,8 @@ static void control_task(void * pvParameters)
 	lcv_state.current_state = lcv_state.setting_state;
 
 	// Set initial control settings
-	lcv_control.peep_to_pip_rampup_ms = 1000;
-	lcv_control.pip_to_peep_rampdown_ms = 1000;
+	lcv_control.peep_to_pip_rampup_ms = 200;
+	lcv_control.pip_to_peep_rampdown_ms = 200;
 
 	calculate_lcv_control_params(&lcv_state, &lcv_control);
 
