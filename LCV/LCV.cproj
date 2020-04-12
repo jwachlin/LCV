@@ -781,6 +781,12 @@
     <Compile Include="src\lib\lcd_interface.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\lib\motor_interface.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\lib\motor_interface.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\task_control.c">
       <SubType>compile</SubType>
     </Compile>

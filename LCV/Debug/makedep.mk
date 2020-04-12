@@ -32,6 +32,8 @@ src\lib\flow_sensor_sfm3300.c
 
 src\lib\lcd_interface.c
 
+src\lib\motor_interface.c
+
 src\task_control.c
 
 src\task_hmi.c

@@ -33,11 +33,26 @@ SOFTWARE.*/
 
  #include "motor_interface.h"
 
+ static struct dac_module module;
+
  void init_motor_interface(void)
  {
 	disable_motor();
 
 	// Set up DAC
+	struct dac_chan_config channel_config;
+	dac_chan_get_config_defaults(&channel_config);
+
+	struct dac_config config;
+	dac_get_config_defaults(&config);
+	config.reference = DAC_REFERENCE_AVCC;
+
+	dac_init(&module, DAC, &config);
+	
+	dac_chan_set_config(&module, DAC_CHANNEL_0, &channel_config);
+	dac_chan_enable(&module, DAC_CHANNEL_0);
+
+	dac_enable(&module);
 
 	drive_motor(0.0);
  }
@@ -54,5 +69,6 @@ SOFTWARE.*/
 
  void drive_motor(float command)
  {
-
+	uint16_t dac_out = command * 1023;
+	dac_chan_write_job(&module, DAC_CHANNEL_0, dac_out);
  }
