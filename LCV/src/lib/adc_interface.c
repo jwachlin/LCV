@@ -29,6 +29,8 @@ SOFTWARE.*/
 
  #include "../task_monitor.h"
 
+ #include "alarm_monitoring.h"
+
  #include "adc_interface.h"
 
  #define ADC_BUFFER_SIZE		10
@@ -110,6 +112,55 @@ SOFTWARE.*/
 	float adc_portion_fsr = (raw_adc / ADC_MAX) * (PRESSURE_SENSOR_VOLTAGE / 3.3);
 	float pressure_cmH2O = (70.307) * adc_portion_fsr * PRESSURE_SENSOR_FSR_PSI;
 	return pressure_cmH2O;
+ }
+
+ float get_pressure_sensor_cmH2O_voted(void)
+ {
+	int32_t i;
+	// Get pressure
+	float pressure_values[3];
+	for(i=0; i<NUM_PRESSURE_SENSOR_CHANNELS; i++)
+	{
+		pressure_values[i] = get_pressure_sensor_cmH2O(i);
+	}
+	// Average, eliminate the furthest outlier, and average again to get actual, then check for sensor failure
+	float avg_pressure = 0.0;
+	for(i=0; i<NUM_PRESSURE_SENSOR_CHANNELS; i++)
+	{
+		avg_pressure += 0.33333 *pressure_values[i];
+	}
+	// Eliminate the furthest outlier of average
+	uint8_t biggest_error_index = 0;
+	float biggest_error = 0.0;
+	for(i=0; i<NUM_PRESSURE_SENSOR_CHANNELS; i++)
+	{
+		float this_error = abs(avg_pressure - pressure_values[i]);
+		if(this_error > biggest_error)
+		{
+			biggest_error = this_error;
+			biggest_error_index = i;
+		}
+	}
+	// Average again with closest two values
+	avg_pressure = 0.0;
+	for(i=0; i<NUM_PRESSURE_SENSOR_CHANNELS; i++)
+	{
+		if(i != biggest_error_index)
+		{
+			avg_pressure += 0.5 * pressure_values[i];
+		}
+	}
+	// Check for sensor failure
+	// TODO what is threshold?
+	if(abs(pressure_values[biggest_error_index] - avg_pressure) > 0.1*avg_pressure)
+	{
+		set_alarm(ALARM_PRESSURE_SENSOR, true);
+	}
+	else
+	{
+		set_alarm(ALARM_PRESSURE_SENSOR, false);
+	}
+	return avg_pressure;
  }
 
  /*

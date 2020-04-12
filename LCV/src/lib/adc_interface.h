@@ -36,6 +36,7 @@ SOFTWARE.*/
 
 void adc_interface_init(void);
 float get_pressure_sensor_cmH2O(uint8_t channel);
+float get_pressure_sensor_cmH2O_voted(void);
 float get_input_potentiometer_portion(void);
 float get_motor_temp_celsius(void);
 
