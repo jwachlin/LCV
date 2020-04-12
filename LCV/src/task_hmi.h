@@ -31,8 +31,15 @@ SOFTWARE.*/
 #ifndef TASK_HMI_H_
 #define TASK_HMI_H_
 
+typedef enum
+{
+	STAGE_NONE=0,
+	STAGE_BPM=1,
+	STAGE_PEEP=2,
+	STAGE_PIP=3
+} SETTINGS_INPUT_STAGE;
 
-
-
+bool system_is_enabled(void);
+bool get_pushbutton_level(void);
 
 #endif /* TASK_HMI_H_ */

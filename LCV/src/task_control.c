@@ -138,3 +138,13 @@ void create_control_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task
 	xTaskCreate(control_task, (const char * const) "CONTROL",
 	stack_depth_words, NULL, task_priority, &control_task_handle);
 }
+
+/*
+*	\brief Gets the current settings
+*
+*	\return The current settings
+*/
+lcv_parameters_t get_current_settings(void)
+{
+	return lcv_state.setting_state;
+}

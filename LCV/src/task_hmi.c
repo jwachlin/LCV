@@ -30,6 +30,8 @@ SOFTWARE.*/
 #include "task_monitor.h"
 #include "lib/lcd_interface.h"
 #include "lib/alarm_monitoring.h"
+#include "lib/adc_interface.h"
+#include "task_control.h"
 
 #include "task_hmi.h"
 
@@ -41,13 +43,88 @@ static TimerHandle_t screen_change_handle = NULL;
 
 static bool display_main_page = true;
 
-void vScreenChangeTimerCallback( TimerHandle_t xTimer )
+static SETTINGS_INPUT_STAGE stage = STAGE_NONE;
+static lcv_parameters_t settings_input;
+static const lcv_parameters_t lower_settings_range = {.enable = 0, .tidal_volume_ml = 100,
+.peep_cm_h20 = 3, .pip_cm_h20 = 10, .breath_per_min = 6};
+
+static const lcv_parameters_t upper_settings_range = {.enable = 0, .tidal_volume_ml = 2500,
+.peep_cm_h20 = 20, .pip_cm_h20 = 35, .breath_per_min = 60};
+
+
+static void handle_hmi_input(void)
+{
+	static bool last_button_status = false;
+	// Check for stage change
+	bool new_button_status = get_pushbutton_level();
+
+	if(!last_button_status && new_button_status)
+	{
+		switch (stage)
+		{
+			case STAGE_NONE:
+				stage = STAGE_BPM;
+				break;
+
+			case STAGE_BPM:
+				stage = STAGE_PEEP;
+				break;
+
+			case STAGE_PEEP:
+				stage = STAGE_PIP;
+				break;
+
+			case STAGE_PIP:
+				// Save settings
+				//update_settings(settings_input);
+				stage = STAGE_NONE;
+				break;
+			
+			default:
+				stage = STAGE_NONE;
+				break;
+		}
+	}
+
+	// Handle the stage
+
+	float knob_portion = get_input_potentiometer_portion();
+
+	switch (stage)
+	{
+		case STAGE_NONE:
+		break;
+
+		case STAGE_BPM:
+			settings_input.breath_per_min = (int32_t) lower_settings_range.breath_per_min +
+			knob_portion * (upper_settings_range.breath_per_min - lower_settings_range.breath_per_min);
+			break;
+
+		case STAGE_PEEP:
+			settings_input.peep_cm_h20 = (int32_t) lower_settings_range.peep_cm_h20 +
+			knob_portion * (upper_settings_range.peep_cm_h20 - lower_settings_range.peep_cm_h20);
+			break;
+
+		case STAGE_PIP:
+			settings_input.pip_cm_h20 = (int32_t) lower_settings_range.pip_cm_h20 +
+			knob_portion * (upper_settings_range.pip_cm_h20 - lower_settings_range.pip_cm_h20);
+			break;
+		
+		default:
+			stage = STAGE_NONE;
+			break;
+	}
+
+	last_button_status = new_button_status;
+}
+
+static void vScreenChangeTimerCallback( TimerHandle_t xTimer )
 {
 	UNUSED(xTimer);
 	display_main_page = !display_main_page;
 }
 
-void vScreenRefreshTimerCallback( TimerHandle_t xTimer )
+static void vScreenRefreshTimerCallback( TimerHandle_t xTimer )
 {
 	UNUSED(xTimer);
 	
@@ -95,10 +172,18 @@ static void hmi_task(void * pvParameters)
 	}
 
 	UNUSED(pvParameters);
+
+	const TickType_t xFrequency = pdMS_TO_TICKS(20);	// 50 Hz rate
+	TickType_t xLastWakeTime = xTaskGetTickCount();
 	
 	for (;;)
 	{
-		vTaskDelay(pdMS_TO_TICKS(1000)); // TODO do something here
+		// Ensure constant period, but don't use timer so that we have the defined priority of this task
+		vTaskDelayUntil( &xLastWakeTime, xFrequency);
+
+		handle_hmi_input();
+		update_main_buffer(&settings_input, stage);
+
 	}
 }
 
@@ -113,4 +198,24 @@ void create_hmi_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_pri
 {
 	xTaskCreate(hmi_task, (const char * const) "HMI",
 		stack_depth_words, NULL, task_priority, &hmi_task_handle);
+}
+
+/*
+*	\brief Checks is the system enable switch is on
+*
+*	\return True if enabled, false otherwise
+*/
+bool system_is_enabled(void)
+{
+	return (ioport_get_pin_level(INPUT_ENABLE_GPIO) == IOPORT_PIN_LEVEL_HIGH);
+}
+
+/*
+*	\brief Checks the level of the pushbutton
+*
+*	\return True if high, false if low
+*/
+bool get_pushbutton_level(void)
+{
+	return ioport_get_pin_level(INPUT_PUSHBUTTON_GPIO);
 }

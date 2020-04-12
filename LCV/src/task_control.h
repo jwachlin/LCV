@@ -57,4 +57,6 @@ typedef struct
 	int32_t pressure_current_cm_h20;
 } lcv_control_t;
 
+lcv_parameters_t get_current_settings(void);
+
 #endif /* TASK_CONTROL_H_ */

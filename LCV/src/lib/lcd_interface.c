@@ -27,7 +27,11 @@ SOFTWARE.*/
  *
  */
 
+  #include <string.h>
+
  #include "../task_monitor.h"
+ #include "../task_hmi.h"
+ #include "../task_control.h"
 
  #include "lcd_interface.h"
 
@@ -233,4 +237,55 @@ bool set_backlight(uint8_t level)
 	backlight_packet.ten_bit_address = false;
 	i2c_master_write_packet_job(&i2c_master_instance, &backlight_packet);
 	return true;
+}
+
+void update_main_buffer(lcv_parameters_t * new_settings,  SETTINGS_INPUT_STAGE stage)
+{
+	lcv_parameters_t current_settings = get_current_settings();
+
+	for(int32_t i = 0; i < SCREEN_BUFFER_SIZE; i++)
+	{
+		main_screen_buffer[i] = 0x20; // ASCII space
+	}
+
+	// Update info
+	// NOTE: snprintf here doesn't support floats
+	if(current_settings.enable)
+	{
+		snprintf(&main_screen_buffer[0],9,"VENT:ON");
+	}
+	else
+	{
+		snprintf(&main_screen_buffer[0],9,"VENT:OFF");
+	}
+
+	snprintf(&main_screen_buffer[10],10, "V:%iml", current_settings.tidal_volume_ml);
+
+	snprintf(&main_screen_buffer[20],20, "PEEP:%icmH20", current_settings.peep_cm_h20);
+
+	snprintf(&main_screen_buffer[40],13, "PIP:%icmH20", current_settings.pip_cm_h20);
+
+	snprintf(&main_screen_buffer[52],7, "BPM:%i", current_settings.breath_per_min);
+
+	// Fill in settings input display
+	switch (stage)
+	{
+		case STAGE_NONE:
+		break;
+
+		case STAGE_BPM:
+		sprintf(&main_screen_buffer[60], "SET BPM:%i", new_settings->breath_per_min);
+		break;
+
+		case STAGE_PEEP:
+		sprintf(&main_screen_buffer[60], "SET PEEP:%icmH20", new_settings->peep_cm_h20);
+		break;
+
+		case STAGE_PIP:
+		sprintf(&main_screen_buffer[60], "SET PIP:%icmH20", new_settings->pip_cm_h20);
+		break;
+		
+		default:
+		break;
+	}
 }

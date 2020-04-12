@@ -30,6 +30,9 @@ SOFTWARE.*/
 #ifndef LCD_INTERFACE_H_
 #define LCD_INTERFACE_H_
 
+#include "../task_control.h"
+#include "../task_hmi.h"
+
 /*
 *	\brief Enumeration of screen buffers
 */
@@ -76,5 +79,6 @@ bool set_character_index(uint8_t panel_index, char * c, SCREEN_TYPE screen);
 bool send_buffer(SCREEN_TYPE screen);
 bool set_contrast(uint8_t level);
 bool set_backlight(uint8_t level);
+void update_main_buffer(lcv_parameters_t * new_settings, SETTINGS_INPUT_STAGE stage);
 
 #endif /* LCD_INTERFACE_H_ */
