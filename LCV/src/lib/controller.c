@@ -34,6 +34,63 @@ SOFTWARE.*/
 
  #include "controller.h"
 
+ typedef enum
+ {
+	PEEP_TO_PIP_STAGE,
+	PEEP_HOLD_STAGE,
+	PIP_TO_PEEP_STAGE,
+	PIP_STAGE
+ } CONTROL_PROFILE_STAGE;
+
+ static CONTROL_PROFILE_STAGE stage;
+ 
+ static uint32_t calculate_new_setpoint(uint32_t stage_start_time_ms, uint32_t current_time_ms, lcv_state_t * state, lcv_control_t * control)
+ {
+	uint32_t time_into_profile = current_time_ms - stage_start_time_ms;
+	uint32_t new_state_start = stage_start_time_ms;
+	// In PEEP to PIP stage?
+	if(time_into_profile < control->peep_to_pip_rampup_ms)
+	{
+		// Linear ramp up
+		control->pressure_set_point_cm_h20 = state->setting_state.peep_cm_h20;
+		control->pressure_set_point_cm_h20 += (int32_t) ((float) (time_into_profile) / (float) control->peep_to_pip_rampup_ms) * 
+												(state->setting_state.pip_cm_h20 - state->setting_state.peep_cm_h20);
+	}
+	else if(time_into_profile < (control->peep_to_pip_rampup_ms + control->pip_hold_ms))
+	{
+		control->pressure_set_point_cm_h20 = state->setting_state.pip_cm_h20;
+	}
+	else if(time_into_profile < (control->peep_to_pip_rampup_ms + control->pip_hold_ms + control->pip_to_peep_rampdown_ms))
+	{
+		// Linear ramp down
+		control->pressure_set_point_cm_h20 = state->setting_state.pip_cm_h20;
+		
+		float section_dt = time_into_profile - (control->peep_to_pip_rampup_ms + control->pip_hold_ms);
+		control->pressure_set_point_cm_h20 += (section_dt / (float) control->pip_to_peep_rampdown_ms) * (state->setting_state.peep_cm_h20 - state->setting_state.pip_cm_h20);
+	}
+	else if(time_into_profile < (control->peep_to_pip_rampup_ms + control->pip_hold_ms + control->pip_to_peep_rampdown_ms + control->peep_hold_ms))
+	{
+		control->pressure_set_point_cm_h20 = state->setting_state.peep_cm_h20;
+	}
+	else
+	{
+		// Time over this setpoint, return new transition time, keep at PEEP
+		control->pressure_set_point_cm_h20 = state->setting_state.peep_cm_h20;
+		new_state_start = stage_start_time_ms + (control->peep_to_pip_rampup_ms + control->pip_hold_ms + control->pip_to_peep_rampdown_ms + control->peep_hold_ms);
+	}
+	return new_state_start;
+ }
+
+ /*
+ *	\brief Performs PIDF control
+ *
+ *	Has integral error range and anti-windup
+ *	Has derivative filtering
+ *	Note: this is a tracking controller, so "derivative" can somewhat abruptly change, need to be careful
+ *
+ *	\param control Pointer to the control structure defining the pressure profile
+ *	\param params Pointer to the structure holding controller tuning parameters
+ */
  static float pidf_control(lcv_control_t * control, controller_param_t * params)
  {
 	static float error_integral = 0.0;
@@ -139,12 +196,16 @@ SOFTWARE.*/
  float run_controller(lcv_state_t * state, lcv_control_t * control, controller_param_t * params)
  {
 	static uint32_t last_time_ms = 0;
+	static start_of_current_profile_time_ms = 0;
 	uint32_t current_time_ms = xTaskGetTickCount() * portTICK_PERIOD_MS;
 
+	// TODO make sure at enable transition, pressure setpoint starts at PEEP always!
+
 	// First, determine what the new setpoint should be
+	// Updates profile if enters a new profile
+	start_of_current_profile_time_ms = calculate_new_setpoint(current_time_ms, start_of_current_profile_time_ms, state, control);
 
 	// Then, run the controller to track this setpoint
-
 	float output = pidf_control(control, params);
 	last_time_ms = current_time_ms;
 	return output;

@@ -33,6 +33,7 @@ SOFTWARE.*/
 #include "lib/alarm_monitoring.h"
 #include "lib/adc_interface.h"
 #include "lib/controller.h"
+#include "lib/motor_interface.h"
 
 #include "task_control.h"
 
@@ -96,11 +97,13 @@ static void control_task(void * pvParameters)
 		if(lcv_state.current_state.enable)
 		{
 			float motor_output = run_controller(&lcv_state, &lcv_control, &control_params);
-			// TODO drive motor
+			enable_motor();
+			drive_motor(motor_output);
 		}
 		else
 		{
-			// TODO disable motor, drive to 0
+			disable_motor();
+			drive_motor(0.0);
 		}
 
 	}
