@@ -33,15 +33,16 @@ SOFTWARE.*/
 
  #include "adc_interface.h"
 
- #define ADC_BUFFER_SIZE		10
- #define ADC_MAX				(65535.0)
+ #define ADC_BUFFER_SIZE		(18)
+ #define ADC_MAX				(4095.0)
 
  static struct adc_module adc_module_instance;
  static volatile uint16_t adc_buffer[ADC_BUFFER_SIZE];
 
- static uint16_t pressure_raw_int[3];
- static uint16_t potentiometer_meas_raw;
- static uint16_t motor_temp_meas_raw;
+ static volatile uint16_t pressure_raw_int[3];
+ static volatile uint16_t potentiometer_meas_raw;
+ static volatile uint16_t motor_temp_meas_raw;
+ static volatile uint16_t flow_meas_raw;
 
  static void adc_cb(struct adc_module *const module)
  {
@@ -56,6 +57,8 @@ SOFTWARE.*/
 		memcpy(&pressure_raw_int[0], &adc_buffer[4], 2);
 		memcpy(&pressure_raw_int[1], &adc_buffer[6], 2);
 		memcpy(&pressure_raw_int[2], &adc_buffer[8], 2);
+		// Flow sensor at ain[10]
+		memcpy(&flow_meas_raw, &adc_buffer[16], 2);
 	}
 	// Trigger new measurement
 	adc_read_buffer_job(&adc_module_instance, adc_buffer, ADC_BUFFER_SIZE);
@@ -74,14 +77,14 @@ SOFTWARE.*/
 	config.positive_input = ADC_POSITIVE_INPUT_PIN2;
 	config.negative_input = ADC_NEGATIVE_INPUT_GND;
 	config.differential_mode = false;
-	config.clock_source = GCLK_GENERATOR_1; // 8Mhz clock
+	config.clock_source = GCLK_GENERATOR_1; // 8Mhz clock TODO is this fast enough?
 	config.clock_prescaler = ADC_CLOCK_PRESCALER_DIV4;
 	config.gain_factor = ADC_GAIN_FACTOR_1X;
-	config.resolution = ADC_RESOLUTION_16BIT;
+	config.resolution = ADC_RESOLUTION_12BIT;
 
-	// Scan from 2 through 6
+	// Scan from 2 through 10
 	config.pin_scan.offset_start_scan = 2;
-	config.pin_scan.inputs_to_scan = 5;
+	config.pin_scan.inputs_to_scan = 9;
 
 	adc_init(&adc_module_instance, ADC, &config);
 	adc_enable(&adc_module_instance);
@@ -103,14 +106,19 @@ SOFTWARE.*/
  */
  float get_pressure_sensor_cmH2O(uint8_t channel)
  {
+	// Pressure sensors output 0.5-4.5V corresponding to 0-5psig
+	// Scaled down to 3.3V range with 3.3K/(2.2K+3.3K) divider
 	if(channel >= NUM_PRESSURE_SENSOR_CHANNELS)
 	{
 		return 0.0;
 	}
 	uint16_t raw_adc =  pressure_raw_int[channel];
 
-	float adc_portion_fsr = (raw_adc / ADC_MAX) * (PRESSURE_SENSOR_VOLTAGE / 3.3);
-	float pressure_cmH2O = (70.307) * adc_portion_fsr * PRESSURE_SENSOR_FSR_PSI;
+	float pressure_voltage_scaled_up = ((raw_adc / ADC_MAX) * 3.3) * (5.5/3.3);
+
+	float pressure_psi = 5.0 * (pressure_voltage_scaled_up - 0.5) / 4.0;
+
+	float pressure_cmH2O = (70.307) * pressure_psi;
 	return pressure_cmH2O;
  }
 
@@ -181,4 +189,20 @@ SOFTWARE.*/
  float get_motor_temp_celsius(void)
  {
 	// TODO what is scale?
+ }
+
+ /*
+ *	\brief Gets flow meter flow in standard liters per minute
+ *
+ *	\return The flow rate in slm
+ */
+ float get_flow_slm(void)
+ {
+	// Sensor outputs 0.5-4.5V which is -250 to +250 SLM
+	// Scaled by 3.3K/(2.2K+3.3K) divider
+	// TODO update to actual
+	float flow_voltage_scaled_up = ((flow_meas_raw / ADC_MAX) * 3.3) * (5.5/3.3);
+
+	float flow_slm = 250.0 * (flow_voltage_scaled_up - 2.5) / 2.0;
+	return flow_slm;
  }

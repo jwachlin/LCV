@@ -31,13 +31,12 @@ SOFTWARE.*/
 #define ADC_INTERFACE_H_
 
 #define NUM_PRESSURE_SENSOR_CHANNELS		3
-#define PRESSURE_SENSOR_VOLTAGE         (3.3)
-#define PRESSURE_SENSOR_FSR_PSI         (1.0)
 
 void adc_interface_init(void);
 float get_pressure_sensor_cmH2O(uint8_t channel);
 float get_pressure_sensor_cmH2O_voted(void);
 float get_input_potentiometer_portion(void);
 float get_motor_temp_celsius(void);
+float get_flow_slm(void);
 
 #endif /* ADC_INTERFACE_H_ */
