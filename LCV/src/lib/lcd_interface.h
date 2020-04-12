@@ -80,5 +80,6 @@ bool send_buffer(SCREEN_TYPE screen);
 bool set_contrast(uint8_t level);
 bool set_backlight(uint8_t level);
 void update_main_buffer(lcv_parameters_t * new_settings, SETTINGS_INPUT_STAGE stage);
+void update_alarm_buffer(void);
 
 #endif /* LCD_INTERFACE_H_ */

@@ -21,43 +21,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
 /**
- * \file task_control.h
+ * \file controller.h
  *
- * \brief Ventilator control task
+ * \brief Controller routines
  *
  */
 
 
-#ifndef TASK_CONTROL_H_
-#define TASK_CONTROL_H_
+#ifndef CONTROLLER_H_
+#define CONTROLLER_H_
+
+#include "../task_control.h"
 
 typedef struct
 {
-	uint8_t enable : 1;
-	uint8_t ie_ratio_tenths;
-	int32_t tidal_volume_ml;
-	int32_t peep_cm_h20;
-	int32_t pip_cm_h20;
-	int32_t breath_per_min;
-} lcv_parameters_t;
+	float kf;
+	float kp;
+	float ki;
+	float kd;
+	float interal_antiwindup;
+	float integral_enable_error_range;
+	float max_output;
+	float min_output;
+} controller_param_t;
 
-typedef struct  
-{
-	lcv_parameters_t setting_state;
-	lcv_parameters_t current_state;
-} lcv_state_t;
+void calculate_lcv_control_params(lcv_state_t * state, lcv_control_t * control);
+float run_controller(lcv_state_t * state, lcv_control_t * control, controller_param_t * params);
 
-typedef struct
-{
-	int32_t peep_to_pip_rampup_ms;
-	int32_t pip_hold_ms;
-	int32_t pip_to_peep_rampdown_ms;
-	int32_t peep_hold_ms;
-	int32_t pressure_set_point_cm_h20;
-	int32_t pressure_current_cm_h20;
-} lcv_control_t;
-
-lcv_parameters_t get_current_settings(void);
-void update_settings(lcv_parameters_t * new_settings);
-
-#endif /* TASK_CONTROL_H_ */
+#endif /* CONTROLLER_H_ */

@@ -122,6 +122,11 @@ SOFTWARE.*/
 	return pressure_cmH2O;
  }
 
+ /*
+ *	\brief Gets pressure sensor data best estimate and checks for errors
+ *
+ *	\return The voted pressure in cm-H2O 
+ */
  float get_pressure_sensor_cmH2O_voted(void)
  {
 	int32_t i;

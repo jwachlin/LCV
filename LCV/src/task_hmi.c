@@ -76,7 +76,7 @@ static void handle_hmi_input(void)
 
 			case STAGE_PIP:
 				// Save settings
-				//update_settings(settings_input);
+				update_settings(&settings_input);
 				stage = STAGE_NONE;
 				break;
 			
@@ -182,7 +182,9 @@ static void hmi_task(void * pvParameters)
 		vTaskDelayUntil( &xLastWakeTime, xFrequency);
 
 		handle_hmi_input();
+		// Actual display write and screen changes happens in timers. Here we just update buffers
 		update_main_buffer(&settings_input, stage);
+		update_alarm_buffer();
 
 	}
 }

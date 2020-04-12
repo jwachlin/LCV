@@ -33,6 +33,8 @@ SOFTWARE.*/
  #include "../task_hmi.h"
  #include "../task_control.h"
 
+ #include "alarm_monitoring.h"
+
  #include "lcd_interface.h"
 
  #define LCD_SERCOM					SERCOM1
@@ -175,6 +177,19 @@ bool send_buffer(SCREEN_TYPE screen)
 		return false;
 	}
 
+	// Clear any trailing 0s from string creation as those are special characters on the LCD
+	for(int32_t i = 0; i < 40; i++)
+	{
+		if(lines_1_3_buffer[i] < 0x07)
+		{
+			lines_1_3_buffer[i] = 0x20; // ASCII space
+		}
+		if(lines_2_4_buffer[i] < 0x07)
+		{
+			lines_2_4_buffer[i] = 0x20; // ASCII space
+		}
+	}
+
 	// First set cursor to start
 	static uint8_t cursor_set[3] = {LCD_PREFIX, LCD_COMMAND_SET_CURSOR, 0x00};
 	cursor_set_packet.address = LCD_I2C_ADDRESS;
@@ -287,5 +302,45 @@ void update_main_buffer(lcv_parameters_t * new_settings,  SETTINGS_INPUT_STAGE s
 		
 		default:
 		break;
+	}
+}
+
+void update_alarm_buffer(void)
+{
+	for(int32_t i = 0; i < SCREEN_BUFFER_SIZE; i++)
+	{
+		alarm_screen_buffer[i] = 0x20; // ASCII space
+	}
+
+	snprintf(&alarm_screen_buffer[0],9,"ERRORS:");
+
+	if(check_alarm(ALARM_FLOW_SENSOR))
+	{
+		snprintf(&alarm_screen_buffer[10],10,"FLOW");
+	}
+
+	if(check_alarm(ALARM_PRESSURE_SENSOR))
+	{
+		snprintf(&alarm_screen_buffer[20],10,"PRES SNS");
+	}
+
+	if(check_alarm(ALARM_MOTOR_ERROR))
+	{
+		snprintf(&alarm_screen_buffer[30],10,"MOT FAIL");
+	}
+
+	if(check_alarm(ALARM_MOTOR_TEMP))
+	{
+		snprintf(&alarm_screen_buffer[40],10,"MOT TEMP");
+	}
+
+	if(check_alarm(ALARM_SETTINGS_LOAD))
+	{
+		snprintf(&alarm_screen_buffer[50],10,"SETT LOAD");
+	}
+
+	if(check_alarm(ALARM_P_RAMP_SETTINGS_INVALID))
+	{
+		snprintf(&alarm_screen_buffer[60],10,"P RISE");
 	}
 }

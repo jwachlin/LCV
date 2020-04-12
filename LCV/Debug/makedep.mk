@@ -26,6 +26,8 @@ src\lib\adc_interface.c
 
 src\lib\alarm_monitoring.c
 
+src\lib\controller.c
+
 src\lib\flow_sensor_sfm3300.c
 
 src\lib\lcd_interface.c
