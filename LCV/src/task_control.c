@@ -94,6 +94,9 @@ static void control_task(void * pvParameters)
 		// Ensure constant period, but don't use timer so that we have the defined priority of this task
 		vTaskDelayUntil( &xLastWakeTime, xFrequency);
 
+		// Ensure at least control is not locked be feeding here
+		wdt_reset_count();
+
 		// Update sensor data if possible
 		update_parameters_from_sensors(&lcv_state, &lcv_control);
 
