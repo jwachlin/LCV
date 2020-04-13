@@ -100,9 +100,9 @@ static void control_task(void * pvParameters)
 		// Update sensor data if possible
 		update_parameters_from_sensors(&lcv_state, &lcv_control);
 
+		float motor_output = run_controller(&lcv_state, &lcv_control, &control_params);
 		if(lcv_state.current_state.enable)
 		{
-			float motor_output = run_controller(&lcv_state, &lcv_control, &control_params);
 			enable_motor();
 			drive_motor(motor_output);
 		}
@@ -149,4 +149,6 @@ void update_settings(lcv_parameters_t * new_settings)
 	lcv_state.setting_state.peep_cm_h20 = new_settings->peep_cm_h20;
 	lcv_state.setting_state.pip_cm_h20 = new_settings->pip_cm_h20;
 	lcv_state.setting_state.ie_ratio_tenths = new_settings->ie_ratio_tenths;
+
+	calculate_lcv_control_params(&lcv_state, &lcv_control);
 }

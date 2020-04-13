@@ -195,11 +195,15 @@ SOFTWARE.*/
  */
  float run_controller(lcv_state_t * state, lcv_control_t * control, controller_param_t * params)
  {
+	static bool was_enabled = false;
 	static uint32_t last_time_ms = 0;
 	static start_of_current_profile_time_ms = 0;
 	uint32_t current_time_ms = xTaskGetTickCount() * portTICK_PERIOD_MS;
 
-	// TODO make sure at enable transition, pressure setpoint starts at PEEP always!
+	if(!was_enabled && state->current_state.enable)
+	{
+		start_of_current_profile_time_ms = current_time_ms;
+	}
 
 	// First, determine what the new setpoint should be
 	// Updates profile if enters a new profile
@@ -208,5 +212,6 @@ SOFTWARE.*/
 	// Then, run the controller to track this setpoint
 	float output = pidf_control(control, params);
 	last_time_ms = current_time_ms;
+	was_enabled = (state->current_state.enable > 0);
 	return output;
  }
