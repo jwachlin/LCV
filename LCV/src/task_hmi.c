@@ -46,6 +46,7 @@ static TaskHandle_t lcd_i2c_task_handle = NULL;
 
 static TimerHandle_t screen_update_handle = NULL;
 static TimerHandle_t screen_change_handle = NULL;
+static TimerHandle_t i2c_timeout_timer_handle = NULL;
 
 static QueueHandle_t lcd_i2c_queue = NULL;
 static struct i2c_master_module i2c_master_instance;
@@ -165,9 +166,15 @@ static void vScreenRefreshTimerCallback( TimerHandle_t xTimer )
 	}
 }
 
+static void vI2CTimeoutTimerCallback( TimerHandle_t xTimer )
+{
+	UNUSED(xTimer);
+	vTaskResume(lcd_i2c_task_handle);
+}
+
 void handle_i2c_write_complete(struct i2c_master_module *const module)
 {
-	i2c_master_get_job_status(module);
+	 enum status_code status = i2c_master_get_job_status(module);
 
 	xTaskResumeFromISR(lcd_i2c_task_handle);
 }
@@ -188,7 +195,9 @@ static void lcd_i2c_hw_setup(void)
 	// Uses FreeRTOS, so need to limit priority
 	irq_register_handler(LCD_SERCOM_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
 	i2c_master_register_callback(&i2c_master_instance, handle_i2c_write_complete, I2C_MASTER_CALLBACK_WRITE_COMPLETE);
+	i2c_master_register_callback(&i2c_master_instance, handle_i2c_write_complete, I2C_MASTER_CALLBACK_ERROR);
 	i2c_master_enable_callback(&i2c_master_instance, I2C_MASTER_CALLBACK_WRITE_COMPLETE);
+	i2c_master_enable_callback(&i2c_master_instance, I2C_MASTER_CALLBACK_ERROR);
 
 	i2c_master_enable(&i2c_master_instance);
 }
@@ -240,6 +249,12 @@ static void lcd_i2c_task(void * pvParameters)
 {
 	UNUSED(pvParameters);
 
+	i2c_timeout_timer_handle = xTimerCreate("I2C_TIMEOUT",
+		pdMS_TO_TICKS(30),
+		pdFALSE,
+		(void *) 0,
+		vI2CTimeoutTimerCallback);
+
 	i2c_transaction_t transaction;
 
 	for (;;)
@@ -250,6 +265,7 @@ static void lcd_i2c_task(void * pvParameters)
 			i2c_master_write_packet_job(&i2c_master_instance, &transaction.packet);
 
 			// Set up timeout timer
+			xTimerReset(i2c_timeout_timer_handle, 0);
 
 			vTaskSuspend(lcd_i2c_task_handle);
 		}
