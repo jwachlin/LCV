@@ -50,8 +50,6 @@ void system_board_init(void)
 	ioport_disable_pin(PRESSURE_SENSOR_2_GPIO);
 	
 	// Flow meter
-	ioport_set_pin_dir(FLOW_SENSOR_POWER_GPIO, IOPORT_DIR_OUTPUT);
-	ioport_set_pin_level(FLOW_SENSOR_POWER_GPIO, !FLOW_SENSOR_POWER_ACTIVE_LEVEL);
 	ioport_set_pin_mode(FLOW_SENSOR_SDA_GPIO, FLOW_SENSOR_SDA_GPIO_FLAGS);
 	ioport_disable_pin(FLOW_SENSOR_SDA_GPIO);
 	ioport_set_pin_mode(FLOW_SENSOR_SCL_GPIO, FLOW_SENSOR_SCL_GPIO_FLAGS);
@@ -60,8 +58,6 @@ void system_board_init(void)
 	ioport_disable_pin(FLOW_SENSOR_ANALOG_GPIO);
 	
 	// Screen
-	ioport_set_pin_dir(LCD_POWER_GPIO, IOPORT_DIR_OUTPUT);
-	ioport_set_pin_level(LCD_POWER_GPIO, !LCD_POWER_ACTIVE_LEVEL);
 	ioport_set_pin_mode(LCD_SDA_GPIO, LCD_SDA_GPIO_FLAGS);
 	ioport_disable_pin(LCD_SDA_GPIO);
 	ioport_set_pin_mode(LCD_SCL_GPIO, LCD_SCL_GPIO_FLAGS);

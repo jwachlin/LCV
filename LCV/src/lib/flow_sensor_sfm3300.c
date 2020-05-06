@@ -96,22 +96,6 @@ void flow_sensor_init(struct i2c_master_module * i2c_mod)
 }
 
 /*
-*	\brief Powers on the flow sensor
-*/
-void flow_sensor_power_on(void)
-{
-	ioport_set_pin_level(FLOW_SENSOR_POWER_GPIO, FLOW_SENSOR_POWER_ACTIVE_LEVEL);
-}
-
-/*
-*	\brief Powers off the flow sensor
-*/
-void flow_sensor_power_off(void)
-{
-	ioport_set_pin_level(FLOW_SENSOR_POWER_GPIO, !FLOW_SENSOR_POWER_ACTIVE_LEVEL);
-}
-
-/*
 *	\brief Requests a measurement from the flow sensor and triggers another measurement
 *
 *	\param i2c_mod Pointer to I2C master module

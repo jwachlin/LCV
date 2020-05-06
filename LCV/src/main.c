@@ -117,5 +117,7 @@ ISR(HardFault_Handler)
 ISR(NMI_Handler)
 {
 	// Yikes, something really bad happened
-	volatile int a = 0;
+	for (;;)
+	{
+	}
 }

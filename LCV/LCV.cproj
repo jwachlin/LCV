@@ -5,7 +5,7 @@
     <ProjectVersion>7.0</ProjectVersion>
     <ToolchainName>com.Atmel.ARMGCC.C</ToolchainName>
     <ProjectGuid>dce6c7e3-ee26-4d79-826b-08594b9ad897</ProjectGuid>
-    <avrdevice>ATSAMD21J18A</avrdevice>
+    <avrdevice>ATSAMD21G18A</avrdevice>
     <avrdeviceseries>samd21</avrdeviceseries>
     <OutputType>Executable</OutputType>
     <Language>C</Language>
@@ -297,10 +297,12 @@
         <board id="board.user_board.samd21g" value="Add" config="" content-id="Atmel.ASF" />
       </framework-data>
     </AsfFrameworkConfig>
-    <avrtool>com.atmel.avrdbg.tool.edbg</avrtool>
+    <avrtool>
+    </avrtool>
     <avrtoolserialnumber>ATML2130031800037337</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x10010300</avrdeviceexpectedsignature>
-    <avrtoolinterface>SWD</avrtoolinterface>
+    <avrtoolinterface>
+    </avrtoolinterface>
     <com_atmel_avrdbg_tool_atmelice>
       <ToolOptions>
         <InterfaceProperties>
