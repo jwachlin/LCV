@@ -97,6 +97,9 @@ static void control_task(void * pvParameters)
 		// Ensure at least control is not locked be feeding here
 		wdt_reset_count();
 
+		// Feed hardware watchdog
+		ioport_set_pin_level(WATCHDOG_GPIO, !ioport_get_pin_level(WATCHDOG_GPIO));
+
 		// Update sensor data if possible
 		update_parameters_from_sensors(&lcv_state, &lcv_control);
 
