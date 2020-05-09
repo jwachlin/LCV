@@ -80,7 +80,7 @@ SOFTWARE.*/
 	transaction.slave_device = fram_slave;
 
 	spi_transact(transaction);
-	delay_us(200); // wait TODO set up queueing
+	delay_us(50); // wait TODO set up queueing
  }
 
  void fram_init(void)

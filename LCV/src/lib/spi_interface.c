@@ -63,7 +63,7 @@ SOFTWARE.*/
 	config_spi_master.pinmux_pad2 = FRAM_MISO_PINMUX;
 	config_spi_master.pinmux_pad3 = PINMUX_UNUSED;
 	config_spi_master.generator_source = GCLK_GENERATOR_0; // 48MHz
-	config_spi_master.mode_specific.master.baudrate = 100000; // 6MHz, FRAM can handle 20 MHz
+	config_spi_master.mode_specific.master.baudrate = 2000000; // 2MHz, FRAM can handle 20 MHz
 	spi_init(&spi_master_instance, SPI_SERCOM, &config_spi_master);
 	spi_enable(&spi_master_instance);
 

@@ -11389,7 +11389,7 @@ static inline void spi_enable_callback(
     4138:	2224      	movs	r2, #36	; 0x24
     413a:	2100      	movs	r1, #0
     413c:	5499      	strb	r1, [r3, r2]
-	config_spi_master.mode_specific.master.baudrate = 100000; // 6MHz, FRAM can handle 20 MHz
+	config_spi_master.mode_specific.master.baudrate = 2000000; // 2MHz, FRAM can handle 20 MHz
     413e:	003b      	movs	r3, r7
     4140:	4a0e      	ldr	r2, [pc, #56]	; (417c <spi_interface_init+0x7c>)
     4142:	619a      	str	r2, [r3, #24]
@@ -11430,7 +11430,7 @@ static inline void spi_enable_callback(
     4174:	bd80      	pop	{r7, pc}
     4176:	46c0      	nop			; (mov r8, r8)
     4178:	00003fbd 	.word	0x00003fbd
-    417c:	000186a0 	.word	0x000186a0
+    417c:	001e8480 	.word	0x001e8480
     4180:	42000800 	.word	0x42000800
     4184:	200051a0 	.word	0x200051a0
     4188:	00007c5d 	.word	0x00007c5d
