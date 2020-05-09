@@ -30,6 +30,8 @@ SOFTWARE.*/
  #include "../task_monitor.h"
  #include <string.h>
 
+#include "fm25l16b.h"
+
  #include "spi_interface.h"
  
  #define MAX_BUFFER_SIZE		(64)
@@ -59,8 +61,8 @@ SOFTWARE.*/
 	config_spi_master.pinmux_pad0 = FRAM_MOSI_PINMUX;
 	config_spi_master.pinmux_pad1 = FRAM_SCK_PINMUX;
 	config_spi_master.pinmux_pad2 = FRAM_MISO_PINMUX;
-	config_spi_master.pinmux_pad3 = PINMUX_DEFAULT;
-	config_spi_master.generator_source = GCLK_GENERATOR_3; // 12MHz
+	config_spi_master.pinmux_pad3 = PINMUX_UNUSED;
+	config_spi_master.generator_source = GCLK_GENERATOR_0; // 48MHz
 	config_spi_master.mode_specific.master.baudrate = 100000; // 6MHz, FRAM can handle 20 MHz
 	spi_init(&spi_master_instance, SPI_SERCOM, &config_spi_master);
 	spi_enable(&spi_master_instance);
@@ -68,6 +70,9 @@ SOFTWARE.*/
 	// Set up callbacks
 	spi_register_callback(&spi_master_instance, callback_spi_master,SPI_CALLBACK_BUFFER_TRANSCEIVED);
 	spi_enable_callback(&spi_master_instance, SPI_CALLBACK_BUFFER_TRANSCEIVED);
+
+	// Note: first spi seems to fail...
+	//spi_write(&spi_master_instance, 0);
  }
 
  bool spi_transact(spi_transaction_t transaction)

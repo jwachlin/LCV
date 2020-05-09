@@ -39,7 +39,7 @@ SOFTWARE.*/
  #define ADDRESS_MASK						(0x7FF) // 11 bit addressing
 
  #define PARAMETER_STORAGE_READ_SIZE				(3+18+1)	// 3 byte header, 18 bytes of data + 1 byte crc8
- #define PARAMETER_STORAGE_WRITE_SIZE				(4+18+1)	// 4 byte header, 18 bytes of data + 1 byte crc8
+ #define PARAMETER_STORAGE_WRITE_SIZE				(3+18+1)	// 3 byte header, 18 bytes of data + 1 byte crc8
 
  static struct spi_slave_inst fram_slave;
 
@@ -65,9 +65,22 @@ SOFTWARE.*/
 	}
  }
 
- static void parameter_save_cb(uint8_t * buff, uint32_t length)
+ static void dummy_spi_cb(uint8_t * buff, uint32_t length)
  {
 	// Do nothing
+ }
+
+ static void write_enable(void)
+ {
+	spi_transaction_t transaction;
+	uint8_t wren = FRAM_WREN;
+	transaction.tx_buff = &wren;
+	transaction.buffer_length = 1;
+	transaction.cb = dummy_spi_cb;
+	transaction.slave_device = fram_slave;
+
+	spi_transact(transaction);
+	delay_us(200); // wait TODO set up queueing
  }
 
  void fram_init(void)
@@ -89,7 +102,7 @@ SOFTWARE.*/
 	// Data
 	uint16_t address = (PARAMETER_STORAGE_ADDRESS) & ADDRESS_MASK;
 	tx_buff[0] = FRAM_READ;
-	tx_buff[1] = (address & 0xFF00) >> 8;
+	tx_buff[1] = (address & 0xFF00) >> 8;  // address is MSB first
 	tx_buff[2] = (address & 0x00FF);
 
 	transaction.tx_buff = tx_buff;
@@ -105,25 +118,26 @@ SOFTWARE.*/
 	uint8_t tx_buff[PARAMETER_STORAGE_WRITE_SIZE];
 	spi_transaction_t transaction;
 
+	write_enable();
+
 	// Data
 	uint16_t address = (PARAMETER_STORAGE_ADDRESS) & ADDRESS_MASK;
-	tx_buff[0] = FRAM_WREN; // TODO can you send WREN right before WRITE?
-	tx_buff[1] = FRAM_WRITE;
-	tx_buff[2] = (address & 0xFF00) >> 8;
-	tx_buff[3] = (address & 0x00FF);
+	tx_buff[0] = FRAM_WRITE;
+	tx_buff[1] = (address & 0xFF00) >> 8; // address is MSB first
+	tx_buff[2] = (address & 0x00FF);
 
-	tx_buff[4] = param->enable;
-	tx_buff[5] = param->ie_ratio_tenths;
-	memcpy(&tx_buff[6], &param->tidal_volume_ml, 4);
-	memcpy(&tx_buff[10], &param->peep_cm_h20, 4);
-	memcpy(&tx_buff[14], &param->pip_cm_h20, 4);
-	memcpy(&tx_buff[18], &param->breath_per_min, 4);
+	tx_buff[3] = param->enable;
+	tx_buff[4] = param->ie_ratio_tenths;
+	memcpy(&tx_buff[5], &param->tidal_volume_ml, 4);
+	memcpy(&tx_buff[9], &param->peep_cm_h20, 4);
+	memcpy(&tx_buff[13], &param->pip_cm_h20, 4);
+	memcpy(&tx_buff[17], &param->breath_per_min, 4);
 	// Calculate CRC8
-	tx_buff[22] = crc_8(&tx_buff[4], PARAMETER_STORAGE_WRITE_SIZE-5); // Ignore header
+	tx_buff[21] = crc_8(&tx_buff[3], PARAMETER_STORAGE_WRITE_SIZE-4); // Ignore header
 
 	transaction.tx_buff = tx_buff;
 	transaction.buffer_length = PARAMETER_STORAGE_WRITE_SIZE;
-	transaction.cb = parameter_save_cb;
+	transaction.cb = dummy_spi_cb;
 	transaction.slave_device = fram_slave;
 
 	return spi_transact(transaction);
