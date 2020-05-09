@@ -801,16 +801,28 @@
     <Compile Include="src\lib\alarm_monitoring.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\lib\checksum.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\lib\controller.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\lib\controller.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\lib\crc8.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\lib\flow_sensor_sfm3300.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\lib\flow_sensor_sfm3300.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\lib\fm25l16b.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\lib\fm25l16b.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\lib\lcd_interface.c">
@@ -823,6 +835,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\lib\motor_interface.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\lib\spi_interface.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\lib\spi_interface.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\task_control.c">

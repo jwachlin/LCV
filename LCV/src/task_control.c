@@ -34,6 +34,7 @@ SOFTWARE.*/
 #include "lib/adc_interface.h"
 #include "lib/controller.h"
 #include "lib/motor_interface.h"
+#include "lib/fm25l16b.h"
 
 #include "task_control.h"
 
@@ -42,6 +43,8 @@ static TaskHandle_t control_task_handle = NULL;
 
 static lcv_state_t lcv_state;
 static lcv_control_t lcv_control;
+
+static volatile bool settings_changed = true;
 
 static void update_parameters_from_sensors(lcv_state_t * state, lcv_control_t * control)
 {
@@ -58,12 +61,19 @@ static void control_task(void * pvParameters)
 {
 	UNUSED(pvParameters);
 
+	// Set up FRAM and SPI
+	fram_init();
+
 	// Set default TODO what should these be?
 	lcv_state.setting_state.enable = 0;
 	lcv_state.setting_state.ie_ratio_tenths = 30;
 	lcv_state.setting_state.peep_cm_h20 = 14;
 	lcv_state.setting_state.pip_cm_h20 = 30;
 	lcv_state.setting_state.breath_per_min = 20;
+
+	// Load from FRAM asynchronously
+	fram_load_parameters_asynch();
+	vTaskDelay(pdMS_TO_TICKS(5));
 
 	// Assume nothing until feedback
 	lcv_state.current_state = lcv_state.setting_state;
@@ -102,6 +112,13 @@ static void control_task(void * pvParameters)
 
 		// Update sensor data if possible
 		update_parameters_from_sensors(&lcv_state, &lcv_control);
+
+		// Save if changed 
+		if(settings_changed)
+		{
+			fram_save_parameters_asynch(&lcv_state.setting_state);
+			settings_changed = false;
+		}
 
 		float motor_output = run_controller(&lcv_state, &lcv_control, &control_params);
 		if(lcv_state.current_state.enable)
@@ -148,10 +165,10 @@ lcv_parameters_t get_current_settings(void)
 */
 void update_settings(lcv_parameters_t * new_settings)
 {
-	lcv_state.setting_state.breath_per_min = new_settings->breath_per_min;
-	lcv_state.setting_state.peep_cm_h20 = new_settings->peep_cm_h20;
-	lcv_state.setting_state.pip_cm_h20 = new_settings->pip_cm_h20;
-	lcv_state.setting_state.ie_ratio_tenths = new_settings->ie_ratio_tenths;
+	// NOTE: may be called from ISR
+	lcv_state.setting_state = *new_settings;
+
+	settings_changed = true;
 
 	calculate_lcv_control_params(&lcv_state, &lcv_control);
 }

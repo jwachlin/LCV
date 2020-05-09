@@ -28,11 +28,17 @@ src\lib\alarm_monitoring.c
 
 src\lib\controller.c
 
+src\lib\crc8.c
+
 src\lib\flow_sensor_sfm3300.c
+
+src\lib\fm25l16b.c
 
 src\lib\lcd_interface.c
 
 src\lib\motor_interface.c
+
+src\lib\spi_interface.c
 
 src\task_control.c
 
