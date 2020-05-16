@@ -48,6 +48,11 @@ int main (void)
 	
 	// Enable WDT
 	configure_wdt();
+
+	// Chirp to show reboot
+	ioport_set_pin_level(BUZZER_GPIO, BUZZER_GPIO_ACTIVE_LEVEL);
+	delay_ms(100);
+	ioport_set_pin_level(BUZZER_GPIO, !BUZZER_GPIO_ACTIVE_LEVEL);
 	
 	// Set up application tasks.
 	create_monitor_task(taskMONITOR_TASK_STACK_SIZE, taskMONITOR_TASK_PRIORITY);

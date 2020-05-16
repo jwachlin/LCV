@@ -138,6 +138,10 @@ SOFTWARE.*/
  */
  float get_pressure_sensor_cmH2O_voted(void)
  {
+	// TODO for now, just use single pressure sensor
+	set_alarm(ALARM_PRESSURE_SENSOR, false);
+	return get_pressure_sensor_cmH2O(0);
+
 	int32_t i;
 	// Get pressure
 	float pressure_values[3];
