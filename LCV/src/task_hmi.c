@@ -172,7 +172,7 @@ static void vI2CTimeoutTimerCallback( TimerHandle_t xTimer )
 	vTaskResume(lcd_i2c_task_handle);
 }
 
-void handle_i2c_write_complete(struct i2c_master_module *const module)
+static void handle_i2c_write_complete(struct i2c_master_module *const module)
 {
 	 enum status_code status = i2c_master_get_job_status(module);
 

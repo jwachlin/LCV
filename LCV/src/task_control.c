@@ -36,6 +36,7 @@ SOFTWARE.*/
 #include "lib/controller.h"
 #include "lib/motor_interface.h"
 #include "lib/fm25l16b.h"
+#include "lib/usb_interface.h"
 
 #include "task_control.h"
 
@@ -59,6 +60,11 @@ static void update_parameters_from_sensors(lcv_state_t * state, lcv_control_t * 
 	control->pressure_current_cm_h20 =  (int32_t) get_pressure_sensor_cmH2O_voted();
 
 	motor_status_monitor();
+
+	if(state->current_state.enable)
+	{
+		usb_transmit_control(control);
+	}
 }
 
 static void control_task(void * pvParameters)
@@ -92,13 +98,13 @@ static void control_task(void * pvParameters)
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 
 	controller_param_t control_params;
-	control_params.kf = 0.03;
-	control_params.kp = 0.0;
+	control_params.kf = 0.05; // higher than 0.5 stops working
+	control_params.kp = 0.003; // higher than 0.003 stops working, sometimes higher is ok
 	control_params.kd = 0.0;
 	control_params.ki = 0.0;
 	control_params.integral_enable_error_range = 10.0;
-	control_params.interal_antiwindup = 0.3;
-	control_params.max_output = 1.0;
+	control_params.integral_antiwindup = 0.3;
+	control_params.max_output = 0.9;
 	control_params.min_output = 0.0;
 
 	init_motor_interface();

@@ -43,7 +43,7 @@ SOFTWARE.*/
 // Task size allocation in words. Note 1 word = 4 bytes
 #define taskMONITOR_TASK_STACK_SIZE		(256)
 #define taskCONTROL_TASK_STACK_SIZE		(512)
-#define taskSENSOR_TASK_STACK_SIZE		(512)
+#define taskSENSOR_TASK_STACK_SIZE		(256)
 #define taskHMI_TASK_STACK_SIZE			(512)
 
 void create_monitor_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_priority);

@@ -33,16 +33,6 @@ SOFTWARE.*/
  #include "alarm_monitoring.h"
 
  #include "controller.h"
-
- typedef enum
- {
-	PEEP_TO_PIP_STAGE,
-	PEEP_HOLD_STAGE,
-	PIP_TO_PEEP_STAGE,
-	PIP_STAGE
- } CONTROL_PROFILE_STAGE;
-
- static CONTROL_PROFILE_STAGE stage;
  
  static uint32_t calculate_new_setpoint(uint32_t stage_start_time_ms, uint32_t current_time_ms, lcv_state_t * state, lcv_control_t * control)
  {
@@ -95,7 +85,7 @@ SOFTWARE.*/
  {
 	static float error_integral = 0.0;
 	static float error_derivative = 0.0;
-	static float last_error;
+	static float last_error = 0.0;
 
 	float error = control->pressure_set_point_cm_h20 - control->pressure_current_cm_h20;
 
@@ -105,9 +95,9 @@ SOFTWARE.*/
 	if(abs(error) < params->integral_enable_error_range)
 	{
 		error_integral += error;
-		if(abs(error_integral * params->ki) > params->interal_antiwindup)
+		if(abs(error_integral * params->ki) > params->integral_antiwindup)
 		{
-			error_integral	= (error_integral/abs(error_integral)) * (params->interal_antiwindup) / params->ki;
+			error_integral	= (error_integral/abs(error_integral)) * (params->integral_antiwindup) / params->ki;
 		}
 	}
 	else
@@ -196,8 +186,7 @@ SOFTWARE.*/
  float run_controller(lcv_state_t * state, lcv_control_t * control, controller_param_t * params)
  {
 	static bool was_enabled = false;
-	static uint32_t last_time_ms = 0;
-	static start_of_current_profile_time_ms = 0;
+	static uint32_t start_of_current_profile_time_ms = 0;
 	uint32_t current_time_ms = xTaskGetTickCount() * portTICK_PERIOD_MS;
 
 	if(!was_enabled && state->current_state.enable)
@@ -211,7 +200,6 @@ SOFTWARE.*/
 
 	// Then, run the controller to track this setpoint
 	float output = pidf_control(control, params);
-	last_time_ms = current_time_ms;
 	was_enabled = (state->current_state.enable > 0);
 	return output;
  }

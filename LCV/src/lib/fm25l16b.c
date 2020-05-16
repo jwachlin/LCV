@@ -145,10 +145,10 @@ SOFTWARE.*/
 
  bool fram_load_states_asynch(lcv_parameters_t * state)
  {
-
+	return false;
  }
 
  bool fram_save_states_asynch(lcv_parameters_t * state)
  {
-
+	return false;
  }

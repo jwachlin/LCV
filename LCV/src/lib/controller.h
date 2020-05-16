@@ -39,7 +39,7 @@ typedef struct
 	float kp;
 	float ki;
 	float kd;
-	float interal_antiwindup;
+	float integral_antiwindup;
 	float integral_enable_error_range;
 	float max_output;
 	float min_output;

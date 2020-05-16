@@ -71,6 +71,7 @@ SOFTWARE.*/
 	// Set up initial screen
 	memcpy(main_screen_buffer, intro_screen, strlen(intro_screen));
 	send_buffer(MAIN_SCREEN);
+	return true;
  }
 
 bool set_string(uint8_t row, uint8_t column, char * c, uint8_t length, SCREEN_TYPE screen)
@@ -121,7 +122,7 @@ bool set_character_index(uint8_t panel_index, char * c, SCREEN_TYPE screen)
 	{
 		return false;
 	}
-	if(screen = MAIN_SCREEN)
+	if(screen == MAIN_SCREEN)
 	{
 		memcpy(&main_screen_buffer[panel_index-1], c, 1);
 		return true;
@@ -208,6 +209,7 @@ bool send_buffer(SCREEN_TYPE screen)
 	screen_buffer_second_half_packet.ten_bit_address = false;
 	transaction.packet = screen_buffer_second_half_packet;
 	add_lcd_i2c_transaction_to_queue(transaction);
+	return true;
 }
 
 bool set_contrast(uint8_t level)

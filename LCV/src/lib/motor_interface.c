@@ -47,6 +47,7 @@ SOFTWARE.*/
 	struct dac_config config;
 	dac_get_config_defaults(&config);
 	config.reference = DAC_REFERENCE_AVCC;
+	config.clock_source = GCLK_GENERATOR_1;	// 8 MHz
 
 	dac_init(&module, DAC, &config);
 	
@@ -93,6 +94,15 @@ SOFTWARE.*/
 
  void drive_motor(float command)
  {
-	uint16_t dac_out = command * 1023;
+	if(command< 0.0)
+	{
+		command = 0.00001;
+	}
+	if(command > 1.0)
+	{
+		command = 0.9999;
+	}
+
+	uint16_t dac_out = (uint16_t) (command * 1023.0);
 	dac_chan_write(&module, DAC_CHANNEL_0, dac_out);
  }

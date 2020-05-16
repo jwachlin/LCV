@@ -2,6 +2,14 @@
 # Automatically-generated file. Do not edit or delete the file
 ################################################################################
 
+src\ASF\common\services\sleepmgr\samd\sleepmgr.c
+
+src\ASF\common\services\usb\class\cdc\device\udi_cdc.c
+
+src\ASF\common\services\usb\class\cdc\device\udi_cdc_desc.c
+
+src\ASF\common\services\usb\udc\udc.c
+
 src\ASF\sam0\drivers\adc\adc_sam_d_r_h\adc.c
 
 src\ASF\sam0\drivers\adc\adc_sam_d_r_h\adc_callback.c
@@ -10,9 +18,19 @@ src\ASF\sam0\drivers\dac\dac_sam_d_c_h\dac.c
 
 src\ASF\sam0\drivers\dac\dac_sam_d_c_h\dac_callback.c
 
+src\ASF\sam0\drivers\extint\extint_callback.c
+
+src\ASF\sam0\drivers\extint\extint_sam_d_r_h\extint.c
+
 src\ASF\sam0\drivers\sercom\i2c\i2c_sam0\i2c_master.c
 
 src\ASF\sam0\drivers\sercom\i2c\i2c_sam0\i2c_master_interrupt.c
+
+src\ASF\sam0\drivers\usb\stack_interface\usb_device_udd.c
+
+src\ASF\sam0\drivers\usb\stack_interface\usb_dual.c
+
+src\ASF\sam0\drivers\usb\usb_sam_d_r\usb.c
 
 src\ASF\thirdparty\freertos\freertos-10.0.0\Source\croutine.c
 
@@ -32,8 +50,6 @@ src\lib\crc8.c
 
 src\lib\flow_sensor_fs6122.c
 
-src\lib\flow_sensor_sfm3300.c
-
 src\lib\fm25l16b.c
 
 src\lib\lcd_interface.c
@@ -41,6 +57,8 @@ src\lib\lcd_interface.c
 src\lib\motor_interface.c
 
 src\lib\spi_interface.c
+
+src\lib\usb_interface.c
 
 src\task_control.c
 
