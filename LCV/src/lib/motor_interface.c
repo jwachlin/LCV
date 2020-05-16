@@ -60,14 +60,16 @@ SOFTWARE.*/
 
  void motor_status_monitor(void)
  {
-	if(ioport_get_pin_level(MOTOR_READY_GPIO) == LOW)
+	// TODO this does not work right now, even if motor working OK. Maybe too weak output?
+	/*if(ioport_get_pin_level(MOTOR_READY_GPIO) == LOW)
 	{
 		set_alarm(ALARM_MOTOR_ERROR, true);
 	}
 	else
 	{
 		set_alarm(ALARM_MOTOR_ERROR, false);
-	}
+	}*/
+	set_alarm(ALARM_MOTOR_ERROR, false);
 
 	if(get_motor_temp_celsius() > 100)
 	{

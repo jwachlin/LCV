@@ -174,7 +174,7 @@ SOFTWARE.*/
 	}
 	// Check for sensor failure
 	// TODO what is threshold?
-	if(abs(pressure_values[biggest_error_index] - avg_pressure) > 0.1*avg_pressure)
+	if(abs(pressure_values[biggest_error_index] - avg_pressure) > 0.2*avg_pressure)
 	{
 		set_alarm(ALARM_PRESSURE_SENSOR, true);
 	}

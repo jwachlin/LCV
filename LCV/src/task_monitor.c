@@ -29,6 +29,8 @@ SOFTWARE.*/
 
 #include "task_monitor.h"
 
+#include "lib/alarm_monitoring.h"
+
 // Task handle
 static TaskHandle_t monitor_task_handle = NULL;
 
@@ -38,7 +40,17 @@ static void monitor_task(void * pvParameters)
 	
 	for (;;)
 	{
-		vTaskDelay(pdMS_TO_TICKS(1000)); // TODO do something here
+		vTaskDelay(pdMS_TO_TICKS(100));
+
+		if(any_alarms_set())
+		{
+			//ioport_set_pin_level(BUZZER_GPIO, BUZZER_GPIO_ACTIVE_LEVEL); // TODO once IO more reliable, add back in to alarm issues
+			ioport_set_pin_level(BUZZER_GPIO, !BUZZER_GPIO_ACTIVE_LEVEL);
+		}
+		else
+		{
+			ioport_set_pin_level(BUZZER_GPIO, !BUZZER_GPIO_ACTIVE_LEVEL);
+		}
 	}
 }
 

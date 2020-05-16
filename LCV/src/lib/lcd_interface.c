@@ -64,7 +64,7 @@ SOFTWARE.*/
 	transaction.packet = power_on_packet;
 	add_lcd_i2c_transaction_to_queue(transaction);
 	
-	set_backlight(2);
+	set_backlight(8);
 
 	set_contrast(40);
 
