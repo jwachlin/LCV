@@ -813,6 +813,12 @@
     <Compile Include="src\lib\crc8.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\lib\flow_sensor_fs6122.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\lib\flow_sensor_fs6122.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\lib\flow_sensor_sfm3300.c">
       <SubType>compile</SubType>
     </Compile>

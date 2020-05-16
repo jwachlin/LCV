@@ -29,12 +29,10 @@ SOFTWARE.*/
 
 #include "task_monitor.h"
 
-#include "lib/flow_sensor_sfm3300.h"
+#include "lib/flow_sensor_fs6122.h"
 #include "lib/adc_interface.h"
 
 #include "task_sensor.h"
-
-#define FLOW_METER_SERCOM			SERCOM3
 
 #define TIDAL_VOLUME_PERIOD_MS		(10)
 
@@ -43,10 +41,19 @@ static TaskHandle_t sensor_task_handle = NULL;
 
 // Tidal volume estimator
 static TimerHandle_t volume_estimator_handle = NULL;
-
-static struct i2c_master_module i2c_master_instance;
+static TimerHandle_t fs6122_read_handle = NULL;
 
 static volatile float recent_tidal_volume_liter = 0.0;
+
+/*
+*	\brief Timer callback for sending I2C command to reset internal address pointer
+*
+*	\param xTimer The timer handle
+*/
+static void vFS6122ReadTimerCallback( TimerHandle_t xTimer )
+{
+	reset_fs6122_read_pointer();
+}
 
 /*
 *	\brief Timer callback for tidal volume estimation
@@ -66,7 +73,9 @@ static void vTidalVolumeTimerCallback( TimerHandle_t xTimer )
 
 	uint32_t current_time = xTaskGetTickCount();
 
-	float flow_slm = get_flow_slm();
+	siargo_fs6122_data_t data;
+	read_fs6122_data(&data);
+	float flow_slm = data.flow_thousand_slpm * 0.001;
 
 	float alpha = 0.7;
 	filtered_rate = (alpha)*filtered_rate + (1.0-alpha)*flow_slm;
@@ -88,6 +97,9 @@ static void vTidalVolumeTimerCallback( TimerHandle_t xTimer )
 
 	last_filtered_rate = filtered_rate;
 	last_time = current_time;
+
+	request_fs6122_data();
+	xTimerReset(fs6122_read_handle, 0);
 }
 
 /*
@@ -97,16 +109,7 @@ static void vTidalVolumeTimerCallback( TimerHandle_t xTimer )
 */
 static void sensor_hw_init(void)
 {
-	struct i2c_master_config config_i2c_master;
-	i2c_master_get_config_defaults(&config_i2c_master);
-	config_i2c_master.baud_rate = I2C_MASTER_BAUD_RATE_100KHZ;
-	config_i2c_master.buffer_timeout = 65535; 
-	config_i2c_master.pinmux_pad0 = PIN_PA22C_SERCOM3_PAD0;
-	config_i2c_master.pinmux_pad1 = PIN_PA23C_SERCOM3_PAD1;
-	
-	/* Initialize and enable device with config */
-	while(i2c_master_init(&i2c_master_instance, FLOW_METER_SERCOM, &config_i2c_master) != STATUS_OK);
-	i2c_master_enable(&i2c_master_instance);
+	fs6122_init();
 
 	adc_interface_init();
 }
@@ -121,15 +124,21 @@ static void sensor_task(void * pvParameters)
 	sensor_hw_init();
 
 	volume_estimator_handle = xTimerCreate("TIDALV",
-	pdMS_TO_TICKS(TIDAL_VOLUME_PERIOD_MS),
-	pdTRUE,
-	(void *) 0,
-	vTidalVolumeTimerCallback);
+		pdMS_TO_TICKS(TIDAL_VOLUME_PERIOD_MS),
+		pdTRUE,
+		(void *) 0,
+		vTidalVolumeTimerCallback);
 
 	if(volume_estimator_handle)
 	{
 		xTimerStart(volume_estimator_handle, 0);
 	}
+
+	fs6122_read_handle = xTimerCreate("FLOWS",
+		pdMS_TO_TICKS(TIDAL_VOLUME_PERIOD_MS/2), // half time
+		pdFALSE,
+		(void *) 0,
+		vFS6122ReadTimerCallback);
 	
 	for (;;)
 	{

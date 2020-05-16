@@ -30,6 +30,8 @@ src\lib\controller.c
 
 src\lib\crc8.c
 
+src\lib\flow_sensor_fs6122.c
+
 src\lib\flow_sensor_sfm3300.c
 
 src\lib\fm25l16b.c
