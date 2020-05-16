@@ -36,11 +36,59 @@ SOFTWARE.*/
 
 #define FLOW_METER_SERCOM			SERCOM3
 
+#define TIDAL_VOLUME_PERIOD_MS		(10)
+
 // Task handle
 static TaskHandle_t sensor_task_handle = NULL;
 
+// Tidal volume estimator
+static TimerHandle_t volume_estimator_handle = NULL;
+
 static struct i2c_master_module i2c_master_instance;
 
+static volatile float recent_tidal_volume_liter = 0.0;
+
+/*
+*	\brief Timer callback for tidal volume estimation
+*
+*	\param xTimer The timer handle
+*/
+static void vTidalVolumeTimerCallback( TimerHandle_t xTimer )
+{
+	UNUSED(xTimer);
+
+	static float flow_volume = 0.0;
+	static float tidal_volume = 0.0;
+	static float filtered_rate = 0.0;
+	static float last_filtered_rate = 0.0;
+	static bool rising = true;
+	static uint32_t last_time = 0;
+
+	uint32_t current_time = xTaskGetTickCount();
+
+	float flow_slm = get_flow_slm();
+
+	float alpha = 0.7;
+	filtered_rate = (alpha)*filtered_rate + (1.0-alpha)*flow_slm;
+	float dt = 0.001 * (current_time - last_time); // Time in seconds
+	flow_volume += flow_slm * (1.0/60.0) * dt;  // flow change in liters
+	tidal_volume += abs(flow_slm) * (1.0/60.0) *dt * 0.5;	// total tidal flow change
+
+	if(rising && filtered_rate > 0.0 && last_filtered_rate <= 0.0)
+	{
+		rising = false;
+	}
+	else if(!rising && filtered_rate < 0.0 && last_filtered_rate >= 0.0)
+	{
+		recent_tidal_volume_liter = tidal_volume;
+		// Reset
+		flow_volume = 0.0;
+		tidal_volume = 0.0;
+	}
+
+	last_filtered_rate = filtered_rate;
+	last_time = current_time;
+}
 
 /*
 *	\brief Sets up sensor interface hardware
@@ -71,6 +119,17 @@ static void sensor_task(void * pvParameters)
 	UNUSED(pvParameters);
 
 	sensor_hw_init();
+
+	volume_estimator_handle = xTimerCreate("TIDALV",
+	pdMS_TO_TICKS(TIDAL_VOLUME_PERIOD_MS),
+	pdTRUE,
+	(void *) 0,
+	vTidalVolumeTimerCallback);
+
+	if(volume_estimator_handle)
+	{
+		xTimerStart(volume_estimator_handle, 0);
+	}
 	
 	for (;;)
 	{
@@ -88,4 +147,12 @@ void create_sensor_task(uint16_t stack_depth_words, unsigned portBASE_TYPE task_
 {
 	xTaskCreate(sensor_task, (const char * const) "SENSOR",
 		stack_depth_words, NULL, task_priority, &sensor_task_handle);
+}
+
+/*
+*	\brief Gets the estimated tidal volume in liters
+*/
+float get_tidal_volume_liter(void)
+{
+	return recent_tidal_volume_liter;
 }

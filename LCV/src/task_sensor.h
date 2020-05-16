@@ -31,6 +31,6 @@ SOFTWARE.*/
 #ifndef TASK_SENSOR_H_
 #define TASK_SENSOR_H_
 
-
+float get_tidal_volume_liter(void);
 
 #endif /* TASK_SENSOR_H_ */

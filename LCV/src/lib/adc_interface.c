@@ -203,6 +203,7 @@ SOFTWARE.*/
  float get_motor_temp_celsius(void)
  {
 	// TODO what is scale?
+	return 0.0;
  }
 
  /*

@@ -29,6 +29,7 @@ SOFTWARE.*/
 
 #include "task_monitor.h"
 #include "task_hmi.h"
+#include "task_sensor.h"
 
 #include "lib/alarm_monitoring.h"
 #include "lib/adc_interface.h"
@@ -51,6 +52,9 @@ static void update_parameters_from_sensors(lcv_state_t * state, lcv_control_t * 
 	adc_request_update();
 	state->current_state.enable = system_is_enabled();
 	state->setting_state.enable = state->current_state.enable;
+
+	state->current_state.tidal_volume_ml = (int32_t) 1000 * get_tidal_volume_liter();
+	state->setting_state.tidal_volume_ml = state->current_state.tidal_volume_ml;
 
 	control->pressure_current_cm_h20 =  (int32_t) get_pressure_sensor_cmH2O_voted();
 
