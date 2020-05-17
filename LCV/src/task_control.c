@@ -129,8 +129,7 @@ static void control_task(void * pvParameters)
 		if(lcv_state.current_state.enable)
 		{
 			enable_motor();
-			drive_motor(motor_output);
-			usb_transmit_control(&lcv_control, motor_output);
+			usb_transmit_control(&lcv_control, drive_motor(motor_output));
 		}
 		else
 		{

@@ -94,7 +94,7 @@ SOFTWARE.*/
 	ioport_set_pin_level(MOTOR_ENABLE_GPIO, !MOTOR_ENABLE_ACTIVE_LEVEL);
  }
 
- void drive_motor(float command)
+ float drive_motor(float command)
  {
 	if(command< 0.0)
 	{
@@ -112,4 +112,5 @@ SOFTWARE.*/
 	uint16_t dac_out = (uint16_t) (command_filt * 1023.0);
 	dac_out &= (0x3ff);
 	dac_chan_write(&module, DAC_CHANNEL_0, dac_out);
+	return command_filt;
  }
