@@ -105,7 +105,11 @@ SOFTWARE.*/
 		command = 0.9999;
 	}
 
-	uint16_t dac_out = (uint16_t) (command * 1023.0);
+	static float command_filt = 0.0;
+
+	command_filt = 0.95 * command_filt + 0.05 * command;
+
+	uint16_t dac_out = (uint16_t) (command_filt * 1023.0);
 	dac_out &= (0x3ff);
 	dac_chan_write(&module, DAC_CHANNEL_0, dac_out);
  }

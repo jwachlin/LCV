@@ -56,10 +56,10 @@ SOFTWARE.*/
 			buffer[13] += buffer[i];
 		}
 
-		i = 0;
-		while(udi_cdc_is_tx_ready() && i++ < 14)
+		
+		if(udi_cdc_is_tx_ready() )
 		{
-			udi_cdc_putc(buffer[i]);
+			udi_cdc_write_buf(buffer, 14);
 		}
 	}
  }
