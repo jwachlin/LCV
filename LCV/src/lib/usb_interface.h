@@ -36,6 +36,6 @@ SOFTWARE.*/
 #define USB_MAGIC_BYTE		(0x5E)
 
 void usb_interface_init(void);
-void usb_transmit_control(lcv_control_t * control_params);
+void usb_transmit_control(lcv_control_t * control_params, float output);
 
 #endif /* USB_INTERFACE_H_ */

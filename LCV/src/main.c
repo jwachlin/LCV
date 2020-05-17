@@ -96,8 +96,6 @@ void vApplicationIdleHook(void);
 void vApplicationIdleHook(void)
 {
 	/* Only called if configUSE_IDLE_HOOK is not set to 0 in FreeRTOSConfig.h */
-	// There must be time spent in idle tick, or system will reset
-	wdt_reset_count();
 }
 
 void vApplicationTickHook(void);

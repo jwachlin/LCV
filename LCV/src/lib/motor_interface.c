@@ -46,6 +46,8 @@ SOFTWARE.*/
 
 	struct dac_config config;
 	dac_get_config_defaults(&config);
+	config.left_adjust = false;
+	config.voltage_pump_disable = false;
 	config.reference = DAC_REFERENCE_AVCC;
 	config.clock_source = GCLK_GENERATOR_1;	// 8 MHz
 
@@ -104,5 +106,6 @@ SOFTWARE.*/
 	}
 
 	uint16_t dac_out = (uint16_t) (command * 1023.0);
+	dac_out &= (0x3ff);
 	dac_chan_write(&module, DAC_CHANNEL_0, dac_out);
  }

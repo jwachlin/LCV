@@ -39,28 +39,27 @@ SOFTWARE.*/
 	udc_start();
  }
 
- void usb_transmit_control(lcv_control_t * control_params)
+ void usb_transmit_control(lcv_control_t * control_params, float output)
  {
 	int32_t i;
 	if(authorize_cdc_transfer)
 	{
-		// TODO send it
-		uint8_t buffer[10];
+		// send it
+		uint8_t buffer[14];
 		buffer[0] = USB_MAGIC_BYTE;
 		memcpy(&buffer[1], &control_params->pressure_current_cm_h20, 4);
 		memcpy(&buffer[5], &control_params->pressure_set_point_cm_h20, 4);
-		buffer[9] = 0;
-		for(i = 1; i < 9; i++)
+		memcpy(&buffer[9], &output, 4);
+		buffer[13] = 0;
+		for(i = 1; i < 13; i++)
 		{
-			buffer[9] += buffer[i];
+			buffer[13] += buffer[i];
 		}
 
-		if(udi_cdc_is_tx_ready())
+		i = 0;
+		while(udi_cdc_is_tx_ready() && i++ < 14)
 		{
-			for(i = 0; i < 10; i++)
-			{
-				udi_cdc_putc(buffer[i]);
-			}
+			udi_cdc_putc(buffer[i]);
 		}
 	}
  }

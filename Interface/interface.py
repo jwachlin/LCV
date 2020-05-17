@@ -9,9 +9,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class CONTROL:
-    def __init__(self, setpoint, pressure, timestamp):
+    def __init__(self, setpoint, pressure, output, timestamp):
         self.setpoint = setpoint
-        self.pressure = pressure 
+        self.pressure = pressure
+        self.output = output
         self.timestamp = timestamp
 
 
@@ -34,12 +35,12 @@ def get_packet(ser, start_time, timeout):
             chk = 0
             step += 1
         elif(step == 1):
-            if(count < 8):
+            if(count < 12):
                 payload.append(data)
                 count += 1
                 chk += data
                 chk &= 0xFF
-                if count == 8:
+                if count == 12:
                     step += 1
         elif(step == 2):
             if(data == chk):
@@ -85,10 +86,10 @@ if __name__ == "__main__":
         payload = get_packet(ser, time.time(), 0.1)
         if payload:
             # unpack it
-            line_spec = "<ii"
+            line_spec = "<iif"
             info = struct.unpack(line_spec, array.array('B',payload).tostring())
 
-            measurements.append(CONTROL(pressure=info[0],setpoint=info[1],timestamp=time.time()))
+            measurements.append(CONTROL(pressure=info[0],setpoint=info[1],output=info[2],timestamp=time.time()))
 
     ser.close()             # close port
     print("Readings complete")
@@ -97,10 +98,12 @@ if __name__ == "__main__":
     times_s = np.array([m.timestamp for m in measurements])
     pressure = np.array([m.pressure for m in measurements])
     setpoint = np.array([m.setpoint for m in measurements])
+    output = np.array([m.output for m in measurements])
 
     fig, ax = plt.subplots()
     ax.plot(times_s, pressure, '.-',label='Measured')
     ax.plot(times_s, setpoint, '.-',label='Desired')
+    ax.plot(times_s, output, '.-',label='Output')
     ax.set(xlabel='Time, s', ylabel='Pressure, cmH20')
     ax.legend()
     ax.grid()

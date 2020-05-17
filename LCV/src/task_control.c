@@ -60,11 +60,6 @@ static void update_parameters_from_sensors(lcv_state_t * state, lcv_control_t * 
 	control->pressure_current_cm_h20 =  (int32_t) get_pressure_sensor_cmH2O_voted();
 
 	motor_status_monitor();
-
-	if(state->current_state.enable)
-	{
-		usb_transmit_control(control);
-	}
 }
 
 static void control_task(void * pvParameters)
@@ -98,13 +93,13 @@ static void control_task(void * pvParameters)
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 
 	controller_param_t control_params;
-	control_params.kf = 0.05; // higher than 0.5 stops working
-	control_params.kp = 0.003; // higher than 0.003 stops working, sometimes higher is ok
+	control_params.kf = 0.06; // higher than 0.5 stops working
+	control_params.kp = 0.0; // higher than 0.003 stops working, sometimes higher is ok
 	control_params.kd = 0.0;
 	control_params.ki = 0.0;
 	control_params.integral_enable_error_range = 10.0;
 	control_params.integral_antiwindup = 0.3;
-	control_params.max_output = 0.9;
+	control_params.max_output = 1.0;
 	control_params.min_output = 0.0;
 
 	init_motor_interface();
@@ -114,7 +109,7 @@ static void control_task(void * pvParameters)
 		// Ensure constant period, but don't use timer so that we have the defined priority of this task
 		vTaskDelayUntil( &xLastWakeTime, xFrequency);
 
-		// Ensure at least control is not locked be feeding here
+		// Ensure at least control is not locked by feeding here
 		wdt_reset_count();
 
 		// Feed hardware watchdog
@@ -135,6 +130,7 @@ static void control_task(void * pvParameters)
 		{
 			enable_motor();
 			drive_motor(motor_output);
+			usb_transmit_control(&lcv_control, motor_output);
 		}
 		else
 		{
