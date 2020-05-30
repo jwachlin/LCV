@@ -8611,8 +8611,8 @@ Disassembly of section .text:
     4690:	000011c5 	.word	0x000011c5
     4694:	2000382c 	.word	0x2000382c
     4698:	3727c5ac 	.word	0x3727c5ac
-    469c:	3f733333 	.word	0x3f733333
-    46a0:	3fa9999a 	.word	0x3fa9999a
+    469c:	3f7d70a4 	.word	0x3f7d70a4
+    46a0:	3f847ae0 	.word	0x3f847ae0
 
 000046a4 <init_motor_interface>:
     46a4:	b57f      	push	{r0, r1, r2, r3, r4, r5, r6, lr}
