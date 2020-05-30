@@ -96,15 +96,27 @@ if __name__ == "__main__":
     print("Readings received: {}".format(len(measurements)))
 
     times_s = np.array([m.timestamp for m in measurements])
+    times_s = times_s - times_s[0]
     pressure = np.array([m.pressure for m in measurements])
     setpoint = np.array([m.setpoint for m in measurements])
     output = np.array([m.output for m in measurements])
 
     fig, ax = plt.subplots()
+    plt.subplot(2,1,1)
+    plt.plot(times_s, pressure, '.-',label='Measured')
+    plt.plot(times_s, setpoint, '.-',label='Desired')
+    plt.legend()
+    plt.grid()
+    plt.ylabel('Pressure, cmH20')
+    plt.subplot(2,1,2)
+    plt.plot(times_s, output, '.-',label='Output')
+    plt.ylabel('Output')
+    plt.legend()
+    plt.grid()
+
+    fig, ax = plt.subplots()
     ax.plot(times_s, pressure, '.-',label='Measured')
-    ax.plot(times_s, setpoint, '.-',label='Desired')
     ax.plot(times_s, output, '.-',label='Output')
-    ax.set(xlabel='Time, s', ylabel='Pressure, cmH20')
     ax.legend()
     ax.grid()
 

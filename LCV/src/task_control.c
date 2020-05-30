@@ -93,11 +93,11 @@ static void control_task(void * pvParameters)
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 
 	controller_param_t control_params;
-	control_params.kf = 0.07; 
-	control_params.kp = 0.003; // higher than 0.003 stops working, sometimes higher is ok
+	control_params.kf = 0.05; 
+	control_params.kp = 0.01; 
 	control_params.kd = 0.0;
 	control_params.ki = 0.0;
-	control_params.integral_enable_error_range = 10.0;
+	control_params.integral_enable_error_range = 35.0;
 	control_params.integral_antiwindup = 0.3;
 	control_params.max_output = 1.0;
 	control_params.min_output = 0.0;

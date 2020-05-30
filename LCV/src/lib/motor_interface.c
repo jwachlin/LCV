@@ -96,6 +96,8 @@ SOFTWARE.*/
 
  float drive_motor(float command)
  {
+	static float last_command = 0.0;
+
 	if(command< 0.0)
 	{
 		command = 0.00001;
@@ -106,9 +108,19 @@ SOFTWARE.*/
 	}
 
 	static float command_filt = 0.0;
-	float alpha = 0.8;
+	float alpha_down = 0.99;
+	float alpha_up = 0.8;
 
-	command_filt = alpha * command_filt + (1.0-alpha) * command;
+	if(command >= command_filt)
+	{
+		command_filt = alpha_up * command_filt + (1.0-alpha_up) * command;
+	}
+	else
+	{
+		command_filt = alpha_down * command_filt + (1.0-alpha_down) * command;
+	}
+
+	last_command = command_filt;
 
 	uint16_t dac_out = (uint16_t) (command_filt * 1023.0);
 	dac_out &= (0x3ff);
