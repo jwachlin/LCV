@@ -39,7 +39,7 @@ SOFTWARE.*/
  static struct adc_module adc_module_instance;
  static volatile uint16_t adc_buffer[ADC_BUFFER_SIZE];
 
- static volatile uint16_t pressure_raw_int[3];
+ static volatile float pressure_raw_filt[3];
  static volatile uint16_t potentiometer_meas_raw;
  static volatile uint16_t motor_temp_meas_raw;
  static volatile uint16_t flow_meas_raw;
@@ -55,9 +55,9 @@ SOFTWARE.*/
 		// Control potentiometer
 		potentiometer_meas_raw = adc_buffer[1];
 		// Three pressure sensors in a raw
-		pressure_raw_int[0] = adc_buffer[2];
-		pressure_raw_int[1] = adc_buffer[3];
-		pressure_raw_int[2] = adc_buffer[4];
+		pressure_raw_filt[0] = (0.9 * pressure_raw_filt[0]) + (0.1) * adc_buffer[2];
+		pressure_raw_filt[1] = (0.9 * pressure_raw_filt[1]) + (0.1) * adc_buffer[3];
+		pressure_raw_filt[2] = (0.9 * pressure_raw_filt[2]) + (0.1) * adc_buffer[4];
 		// Flow sensor at ain[10]
 		flow_meas_raw = adc_buffer[8];
 	}
@@ -121,7 +121,7 @@ SOFTWARE.*/
 	{
 		return 0.0;
 	}
-	uint16_t raw_adc =  pressure_raw_int[channel];
+	float raw_adc =  pressure_raw_filt[channel];
 
 	float pressure_voltage_scaled_up = ((raw_adc / ADC_MAX) * 3.3) * (15.6 / 10.0);
 
@@ -140,7 +140,6 @@ SOFTWARE.*/
  {
 	// TODO for now, just use single pressure sensor
 	set_alarm(ALARM_PRESSURE_SENSOR, false);
-	return get_pressure_sensor_cmH2O(0);
 
 	int32_t i;
 	// Get pressure

@@ -43,14 +43,26 @@ SOFTWARE.*/
 // Task handle
 static TaskHandle_t control_task_handle = NULL;
 
+static TimerHandle_t adc_timer_handle = NULL;
+
 static lcv_state_t lcv_state;
 static lcv_control_t lcv_control;
 
 static volatile bool settings_changed = true;
 
+/*
+*	\brief Timer callback for requesting ADC read
+*
+*	\param xTimer The timer handle
+*/
+static void vADCRequestTriggerCallback( TimerHandle_t xTimer )
+{
+	UNUSED(xTimer);
+	adc_request_update();
+}
+
 static void update_parameters_from_sensors(lcv_state_t * state, lcv_control_t * control)
 {
-	adc_request_update();
 	state->current_state.enable = system_is_enabled();
 	state->setting_state.enable = state->current_state.enable;
 
@@ -88,6 +100,17 @@ static void control_task(void * pvParameters)
 	lcv_control.pip_to_peep_rampdown_ms = 200;
 
 	calculate_lcv_control_params(&lcv_state, &lcv_control);
+
+	adc_timer_handle = xTimerCreate("ADCTH",
+		pdMS_TO_TICKS(2),
+		pdTRUE,
+		(void *) 0,
+		vADCRequestTriggerCallback);
+
+	if(adc_timer_handle)
+	{
+		xTimerStart(adc_timer_handle, 0);
+	}
 
 	const TickType_t xFrequency = pdMS_TO_TICKS(10);	// 100 Hz rate
 	TickType_t xLastWakeTime = xTaskGetTickCount();
