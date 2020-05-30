@@ -111,7 +111,7 @@ SOFTWARE.*/
 	float alpha_down = 0.99;
 	float alpha_up = 0.8;
 
-	if(command >= command_filt)
+	if(command >= last_command)
 	{
 		command_filt = alpha_up * command_filt + (1.0-alpha_up) * command;
 	}
