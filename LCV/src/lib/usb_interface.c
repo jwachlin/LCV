@@ -57,7 +57,7 @@ SOFTWARE.*/
 		}
 
 		
-		if(udi_cdc_is_tx_ready() )
+		if(udi_cdc_is_tx_ready() && udi_cdc_get_free_tx_buffer() >= 14)
 		{
 			udi_cdc_write_buf(buffer, 14);
 		}

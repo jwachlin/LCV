@@ -33,6 +33,7 @@
   <options>
     <option id="common.boards" value="Add" config="" content-id="Atmel.ASF" />
     <option id="common.services.ioport" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="common.services.usb.class.device" value="Add" config="cdc" content-id="Atmel.ASF" />
     <option id="common2.services.delay" value="Add" config="cycle" content-id="Atmel.ASF" />
     <option id="sam0.drivers.adc" value="Add" config="callback" content-id="Atmel.ASF" />
     <option id="sam0.drivers.dac" value="Add" config="callback" content-id="Atmel.ASF" />
@@ -42,7 +43,7 @@
     <option id="sam0.drivers.system" value="Add" config="" content-id="Atmel.ASF" />
     <option id="sam0.drivers.wdt" value="Add" config="callback" content-id="Atmel.ASF" />
     <option id="thirdparty.os.freertos.version" value="Add" config="10.0.0" content-id="Atmel.ASF" />
-    <option id="common.services.usb.class.device" value="Add" config="cdc" content-id="Atmel.ASF" />
+    <option id="sam0.drivers.system.reset" value="Add" config="" content-id="Atmel.ASF" />
     <option id="sam0.utils.linker_scripts" value="Add" config="" content-id="Atmel.ASF" />
   </options>
   <configurations>
@@ -329,7 +330,7 @@
 </framework-data>
     </AsfFrameworkConfig>
     <avrtool>com.atmel.avrdbg.tool.atmelice</avrtool>
-    <avrtoolserialnumber>J42700002742</avrtoolserialnumber>
+    <avrtoolserialnumber>J42700013890</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x10010305</avrdeviceexpectedsignature>
     <avrtoolinterface>SWD</avrtoolinterface>
     <com_atmel_avrdbg_tool_atmelice>
@@ -340,7 +341,7 @@
         <InterfaceName>SWD</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.atmelice</ToolType>
-      <ToolNumber>J42700002742</ToolNumber>
+      <ToolNumber>J42700013890</ToolNumber>
       <ToolName>Atmel-ICE</ToolName>
     </com_atmel_avrdbg_tool_atmelice>
     <avrtoolinterfaceclock>10000000</avrtoolinterfaceclock>

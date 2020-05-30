@@ -106,8 +106,9 @@ SOFTWARE.*/
 	}
 
 	static float command_filt = 0.0;
+	float alpha = 0.8;
 
-	command_filt = 0.95 * command_filt + 0.05 * command;
+	command_filt = alpha * command_filt + (1.0-alpha) * command;
 
 	uint16_t dac_out = (uint16_t) (command_filt * 1023.0);
 	dac_out &= (0x3ff);

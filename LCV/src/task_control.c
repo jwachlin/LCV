@@ -94,7 +94,7 @@ static void control_task(void * pvParameters)
 
 	controller_param_t control_params;
 	control_params.kf = 0.07; 
-	control_params.kp = 0.0; // higher than 0.003 stops working, sometimes higher is ok
+	control_params.kp = 0.003; // higher than 0.003 stops working, sometimes higher is ok
 	control_params.kd = 0.0;
 	control_params.ki = 0.0;
 	control_params.integral_enable_error_range = 10.0;
@@ -129,7 +129,8 @@ static void control_task(void * pvParameters)
 		if(lcv_state.current_state.enable)
 		{
 			enable_motor();
-			usb_transmit_control(&lcv_control, drive_motor(motor_output));
+			float output_sent = drive_motor(motor_output);
+			usb_transmit_control(&lcv_control, output_sent);
 		}
 		else
 		{

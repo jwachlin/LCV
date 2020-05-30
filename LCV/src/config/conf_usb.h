@@ -142,7 +142,7 @@ extern void my_callback_cdc_disable(void);
 //#define  UDI_CDC_LOW_RATE
 
 //! Default configuration of communication port
-#define  UDI_CDC_DEFAULT_RATE             1000000
+#define  UDI_CDC_DEFAULT_RATE             512000
 #define  UDI_CDC_DEFAULT_STOPBITS         CDC_STOP_BITS_1
 #define  UDI_CDC_DEFAULT_PARITY           CDC_PAR_NONE
 #define  UDI_CDC_DEFAULT_DATABITS         8
